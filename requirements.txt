@@ -1,3 +1,6 @@
+pytelegrambotapi
+pydantic
+python-dotenv
 matplotlib
 pandas
 async
