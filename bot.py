@@ -4,7 +4,18 @@ from dotenv import load_dotenv
 from telebot import types
 from telebot.types import InputMediaPhoto
 import re
+import warnings
+import numpy as np
+from src.graph.graph import parse, validate, dichotomy, graph as build_graph
+import src.graph.graph as graph_module
 
+# пути сохранения картинок для юзеров
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+GRAPHS_DIR = os.path.join(BASE_DIR, "src", "pictures", "users")
+
+# чтобы не было лишних "<string>:1: RuntimeWarning: invalid value encountered in sqrt"
+np.seterr(all='ignore')
+warnings.filterwarnings('ignore')
 
 load_dotenv()
 
@@ -60,23 +71,58 @@ def search(message):
     send_picture_examples(message)
     bot.delete_message(message.chat.id, message.message_id)
 
-# Проверка того, как бот принимает инфу
+'''
+Макс/Мин в деле! Основные функции подтягиваются из graph.py, правда есть пара
+костылей с переменной c например, которая нужна для проверок
+'''
+
 @bot.message_handler(func=lambda m: m.text == "📊 Построить график")
-def ask_func(message):
-    bot.send_message(message.chat.id, "Введите функцию f(x) = ")
+def ask_function(message):
+    bot.send_message(message.chat.id, "[ƒ] Введите функцию f(x) = ")
     bot.register_next_step_handler(message, ask_a)
+
 def ask_a(message):
-    func = message.text
-    bot.send_message(message.chat.id, "Введите начало отрезка a = ")
+    func_raw = message.text
+    if not validate(func_raw):
+        bot.send_message(message.chat.id, "❌ Синтаксическая ошибка! Попробуйте еще раз")
+        bot.register_next_step_handler(message, ask_a)
+        return
+
+    func = parse(func_raw)
+    bot.send_message(message.chat.id, "[ƒ] Введите начало отрезка a = ")
     bot.register_next_step_handler(message, ask_b, func)
+
 def ask_b(message, func):
-    a = message.text
-    bot.send_message(message.chat.id, "Введите конец отрезка b = ")
+    try:
+        a = float(message.text)
+    except ValueError:
+        bot.send_message(message.chat.id, "❌ Вводите число! Попробуйте еще раз")
+        bot.register_next_step_handler(message, ask_b, func)
+        return
+
+    bot.send_message(message.chat.id, "[ƒ] Введите конец отрезка b = ")
     bot.register_next_step_handler(message, calculate, func, a)
+
 def calculate(message, func, a):
-    b = message.text
-    print(func, a, b)
-    bot.send_message(message.chat.id, f"Считаю для f(x) = {func} на [{a}; {b}]...")
+    try:
+        b = float(message.text)
+    except ValueError:
+        bot.send_message(message.chat.id, "❌ Вводите число! Попробуйте еще раз")
+        bot.register_next_step_handler(message, calculate, func, a)
+        return
+
+    graph_module.func = func
+
+    result_text = dichotomy(a, b)
+    c = graph_module.c
+
+    PATH = build_graph(message.from_user.id, func, a, b, GRAPHS_DIR)
+
+    if PATH:
+        with open(PATH, "rb") as photo:
+            bot.send_photo(message.chat.id, photo, caption = f'📊 {result_text}')
+    else:
+        bot.send_message(message.chat.id, result_text)
 
 if __name__ == "__main__":
     bot.polling()
