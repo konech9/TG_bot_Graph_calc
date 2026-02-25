@@ -6,3 +6,4 @@ pandas
 async
 aiogram
 numpy
+re
