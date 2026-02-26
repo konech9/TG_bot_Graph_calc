@@ -125,7 +125,7 @@ def send_welcome(message):
     bot.delete_message(message.chat.id, message.message_id)
     logger.info(f'Запуск бота | id: {message.from_user.id} | '
                 f'username: @{message.from_user.username} | '
-                f'имя: {message.from_user.first_name} {message.from_user.last_name} |\n')
+                f'имя: {message.from_user.first_name} {message.from_user.last_name} |')
 
 #===ПУНКТ МЕНЮ "ИНФОРМАЦИЯ"=============================================================================================
 @bot.message_handler(func=lambda m: m.text == "ℹ️ Информация")
