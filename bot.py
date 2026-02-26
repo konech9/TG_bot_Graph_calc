@@ -77,6 +77,32 @@ def send_picture_examples(message):
         caption="🤖 <b>GraphBOT</b> умеет <i>строить графики</i>, а также <i>находить "
                 "минимум и максимум функции</i> на выбранном интервале!\n\n"
                 "✍️ Примеры работы бота выше.\n\n"
+                "<b>📖 Синтаксис:</b>\n"
+                "<b>Переменная:</b>\n"
+                "<code>x</code> или <code>X</code>\n\n"
+                "<b>Операторы:</b>\n"
+                "<code>+</code> - сложение\n"
+                "<code>-</code> - вычитание\n"
+                "<code>*</code> - умножение\n"
+                "<code>/</code> - деление\n"
+                "<code>^</code> или <code>**</code> - степень\n\n"
+                "<b>Функции^</b>\n"
+                "<code>sin(x)</code> - синус\n"
+                "<code>cos(x)</code> - косинус\n"
+                "<code>tan(x)</code> - тангенс\n"
+                "<code>exp(x)</code> - экспонента\n"
+                "<code>log(x)</code> - натуральный логарифм\n"
+                "<code>ln(x)</code> - натуральный логарифм\n"
+                "<code>sqrt(x)</code> - квадратный корень\n"
+                "<code>abs(x)</code> или <code>|x|</code> - модуль\n\n"
+                "<b>Константы:</b>\n"
+                "<code>pi</code>  число π ≈ 3.14159\n"
+                "<code>e</code>   число e ≈ 2.71828\n\n"
+                "<b>Примеры:</b>\n"
+                "<code>sin(x) + cos(x)</code>\n"
+                "<code>x^2 + 2x + 1</code>\n"
+                "<code>sqrt(x) + ln(x)</code>\n"
+                "<code>2sin(x)</code>\n\n"
                 "🤓 <b>Создатель бота:</b> <b><i><a href='https://t.me/Cnstrct13'>>onemoretime</a></i></b> \n"
                 "<b><i><a href='https://t.me/pritonoflizzaopium'>-TGC</a></i></b>",
         parse_mode="HTML"
@@ -191,6 +217,10 @@ def handle_max(message):
     # Смотрит сохраненный файл, если графика нет, то и изображения тоже, значит и смотреть нечего, тогда просто выводим рез. Дихотомии
     PATH = build_graph(message.from_user.id, data['func'], data['a'], data['b'], GRAPHS_DIR)
 
+    # Лог для построения графика
+    logger.info(f'График (максимум) | id: {message.from_user.id} | username: @{message.from_user.username} | '
+                f'f(x) = {data['func']} | отрезок: [{data['a']}]; [{data['b']}] | результат: {result_text}')
+
     if PATH:
         with open(PATH, "rb") as photo:
             bot.send_photo(message.chat.id, photo, caption=f'📊 <b><code>{result_text}</code></b>', parse_mode = 'HTML')
@@ -213,6 +243,10 @@ def handle_min(message):
     result_text = dichotomy_min(data['a'], data['b'])
     c = graph_module.c
     PATH = build_graph(message.from_user.id, data['func'], data['a'], data['b'], GRAPHS_DIR)
+
+    # Лог для построения графика
+    logger.info(f'График (минимум) | id: {message.from_user.id} | username: @{message.from_user.username} | '
+                f'f(x) = {data['func']} | отрезок: [{data['a']}]; [{data['b']}] | результат: {result_text}')
 
     if PATH:
         with open(PATH, "rb") as photo:
@@ -244,6 +278,11 @@ def get_simple_function(message):
     func = parse(func_raw)
     graph_module.func = func
     PATH = simple_graph(message.from_user.id, func, GRAPHS_DIR)
+
+    # Лог для построения графика
+    logger.info(f'График | id: {message.from_user.id} | username: @{message.from_user.username} | '
+                f'f(x) = {func} ')
+
     if PATH:
         with open(PATH, "rb") as photo:
             bot.send_photo(message.chat.id, photo, caption = f'<b>f(x) = <code>{func_raw}</code></b>', parse_mode="HTML")

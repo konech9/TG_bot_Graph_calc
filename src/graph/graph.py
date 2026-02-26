@@ -18,6 +18,9 @@ def parse(expr):
     # , <=> .
     expr = expr.replace(',', '.')
 
+    # |f(x)| <=> abs(f(x))
+    expr = re.sub(r'\|([^|]+)\|', r'abs(\1)', expr)
+
     # умножение через пробел или без: 2x <=> 2*x
     expr = re.sub(r'(\d)(x)', r'\1*\2', expr)
     expr = re.sub(r'(\d)(sin|cos|tan|exp|log|sqrt|abs)', r'\1*\2', expr)
