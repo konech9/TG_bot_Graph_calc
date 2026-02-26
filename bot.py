@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 from src.graph.graph import parse, validate, dichotomy_max, dichotomy_min, graph as build_graph, simple_graph
 import src.graph.graph as graph_module
+from logger import logger
 
 #===УСЛОВНЫЙ SETUP======================================================================================================
 
@@ -63,6 +64,8 @@ def send_picture_start(message):
 '''
 Тут внимательно! отправка настроена так, что отправляет вообще все картинки из папки (конкретным форматом, указанным
 в функции), поэтому изображения можно сменить, или добавить больше.
+сначала бросает все файлы в список examples_dir, а потом проверяет, что из этого картинка (по формату),
+затем кидает нужные файлы в еще один список и делает подпись для первого изображения.
 '''
 
 def send_picture_examples(message):
@@ -85,6 +88,7 @@ def send_picture_examples(message):
 def main_tab(message):
     send_picture_start(message)
     bot.send_message(message.chat.id, "🔎 С чего начнем?", reply_markup=menu())
+    # Везде, где бот удаляет сообщение, это он подчищает за пользователем, удаляя ненужные данные из переписки
     bot.delete_message(message.chat.id, message.message_id)
 
 #===СТАРТ, ВЫКИДЫВАЕТ ПАРУ ФОТО=========================================================================================
@@ -93,6 +97,9 @@ def send_welcome(message):
     send_picture_start(message)
     bot.send_message(message.chat.id, "🔎 С чего начнем?", reply_markup=menu())
     bot.delete_message(message.chat.id, message.message_id)
+    logger.info(f'Запуск бота | id: {message.from_user.id} | '
+                f'username: @{message.from_user.username} | '
+                f'имя: {message.from_user.first_name} {message.from_user.last_name} |\n')
 
 #===ПУНКТ МЕНЮ "ИНФОРМАЦИЯ"=============================================================================================
 @bot.message_handler(func=lambda m: m.text == "ℹ️ Информация")
@@ -145,7 +152,7 @@ def ask_b(message, func):
     bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите конец отрезка <i>b = </i>", parse_mode = 'HTML')
     bot.register_next_step_handler(message, calculate, func, a)
 
-# Словарик для работы с данными, вводимыми пользователем
+# Словарик для работы с данными, вводимыми пользователем, туда записывается a, b и функция, в случае чего перезаписываются
 user_data = {}
 
 def calculate(message, func, a):
@@ -157,6 +164,7 @@ def calculate(message, func, a):
         b = float(message.text)
     except ValueError:
         bot.send_message(message.chat.id, "❌ <b>Вводите число!</b> Попробуйте еще раз", parse_mode = 'HTML')
+        # Бот снова кидает пользователя ко вводу параметра, как бы вводя в цикл, пока не получит нужный ответ или пользователь не выйдет
         bot.register_next_step_handler(message, calculate, func, a)
         bot.delete_message(message.chat.id, message.message_id)
         return
@@ -180,6 +188,7 @@ def handle_max(message):
     graph_module.func = data['func']
     result_text = dichotomy_max(data['a'], data['b'])
     c = graph_module.c
+    # Смотрит сохраненный файл, если графика нет, то и изображения тоже, значит и смотреть нечего, тогда просто выводим рез. Дихотомии
     PATH = build_graph(message.from_user.id, data['func'], data['a'], data['b'], GRAPHS_DIR)
 
     if PATH:
@@ -191,7 +200,7 @@ def handle_max(message):
     # Выходим на базовый функционал меню
     bot.send_message(message.chat.id, "🔎 Чем займемся теперь?", reply_markup=menu())
 
-# Все то же самое для МИНИМУМ
+# Все то же самое для МИНИМУМА
 @bot.message_handler(func=lambda m: m.text == "⬇️ Минимум")
 def handle_min(message):
     data = user_data.get(message.chat.id)
@@ -217,7 +226,7 @@ def handle_min(message):
 #===ПОСТРОЕНИЕ ГРАФИКА==================================================================================================
 @bot.message_handler(func=lambda m: m.text == "📊 Построить график")
 def ask_simple_function(messege):
-    bot.send_message(messege.chat.id, "<i><b>[ƒ]</b></i>> Введите функцию <i>f(x) = </i>", parse_mode = 'HTML')
+    bot.send_message(messege.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode = 'HTML')
     bot.register_next_step_handler(messege, get_simple_function)
 
 def get_simple_function(message):
@@ -238,6 +247,8 @@ def get_simple_function(message):
     if PATH:
         with open(PATH, "rb") as photo:
             bot.send_photo(message.chat.id, photo, caption = f'<b>f(x) = <code>{func_raw}</code></b>', parse_mode="HTML")
+    else:
+        bot.send_message(message.chat.id, f'❌ График не был построен')
 
     bot.send_message(message.chat.id, "🔎 Чем займемся теперь?", reply_markup=menu())
 #=======================================================================================================================

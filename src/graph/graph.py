@@ -181,6 +181,7 @@ def graph(i, func, a, b, save_dir='./imgs'):
         plt.ylabel('y')
         plt.grid(True)
 
+        # в случае если папки не будет, эта штука создаст папку сама с назв. imgs
         os.makedirs(save_dir, exist_ok=True)
         path = os.path.join(save_dir, f'{i}.png')
         plt.savefig(path)
