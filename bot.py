@@ -53,9 +53,10 @@ def menu_graph():
 def send_picture_start(message):
     photo_path = os.path.join(pictures_dir, "src", "pictures", "DICHOTOMY.png")
     with open(photo_path, "rb") as photo:
-        bot.send_photo(message.chat.id, photo, caption = f"👋 Приветствую вас, {message.from_user.first_name}, в GraphBOT!"
-                                                         f" Вы можете ознакомиться с функционалом и принципом работы"
-                                                         f" или сразу приступить к изучению графиков.")
+        bot.send_photo(message.chat.id, photo, caption = f"👋 Приветствую вас, {message.from_user.first_name}, в GraphBOT!\n\n"
+                                                         f"Рекомендуем ознакомиться с синтаксисом ввода функции в пункте "
+                                                         f"ℹ️ Информация")
+
 
 #===ПУНКТ МЕНЮ "ИНФОРМАЦИЯ"=============================================================================================
 
@@ -68,11 +69,15 @@ def send_picture_examples(message):
     examples_dir = os.path.join(pictures_dir, "src", "pictures", "examples")
     files = [f for f in os.listdir(examples_dir) if f.endswith((".png", ".jpg", ".jpeg"))]
     media = [InputMediaPhoto(open(os.path.join(examples_dir, f), "rb")) for f in files]
-    media[0].caption = (f"🤖 GraphBOT умеет строить графики, а также находить"
-                        f"минимум и максимум функции на выбранном интервале! \n"
-                        f"✍️ Примеры работы бота выше.\n\n"
-                        f"Создатель бота: >onemoretime")
-
+    media[0] = InputMediaPhoto(
+        open(os.path.join(examples_dir, files[0]), "rb"),
+        caption="🤖 <b>GraphBOT</b> умеет <i>строить графики</i>, а также <i>находить "
+                "минимум и максимум функции</i> на выбранном интервале!\n\n"
+                "✍️ Примеры работы бота выше.\n\n"
+                "🤓 <b>Создатель бота:</b> <b><i><a href='https://t.me/Cnstrct13'>>onemoretime</a></i></b> \n"
+                "<b><i><a href='https://t.me/pritonoflizzaopium'>-TGC</a></i></b>",
+        parse_mode="HTML"
+    )
     bot.send_media_group(message.chat.id, media)
 
 #===ВЫХОД НА ГЛАВНУЮ====================================================================================================
@@ -105,7 +110,7 @@ def search(message):
 @bot.message_handler(func=lambda m: m.text == "↕️ Найти Макс/Мин")
 
 def ask_function(message):
-    bot.send_message(message.chat.id, "[ƒ] Введите функцию f(x) = ")
+    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode = 'HTML')
     bot.register_next_step_handler(message, ask_a)
 
 def ask_a(message):
@@ -115,13 +120,13 @@ def ask_a(message):
         return
     func_raw = message.text
     if not validate(func_raw):
-        bot.send_message(message.chat.id, "❌ Синтаксическая ошибка! Попробуйте еще раз")
+        bot.send_message(message.chat.id, "❌ <b>Синтаксическая ошибка!</b> Попробуйте еще раз", parse_mode = 'HTML')
         bot.register_next_step_handler(message, ask_a)
         bot.delete_message(message.chat.id, message.message_id)
         return
 
     func = parse(func_raw)
-    bot.send_message(message.chat.id, "[ƒ] Введите начало отрезка a = ")
+    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите начало отрезка <i>a = </i>", parse_mode = 'HTML')
     bot.register_next_step_handler(message, ask_b, func)
 
 def ask_b(message, func):
@@ -132,12 +137,12 @@ def ask_b(message, func):
     try:
         a = float(message.text)
     except ValueError:
-        bot.send_message(message.chat.id, "❌ Вводите число! Попробуйте еще раз")
+        bot.send_message(message.chat.id, "❌ <b>Вводите число!</b> Попробуйте еще раз", parse_mode = 'HTML')
         bot.register_next_step_handler(message, ask_b, func)
         bot.delete_message(message.chat.id, message.message_id)
         return
 
-    bot.send_message(message.chat.id, "[ƒ] Введите конец отрезка b = ")
+    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите конец отрезка <i>b = </i>", parse_mode = 'HTML')
     bot.register_next_step_handler(message, calculate, func, a)
 
 # Словарик для работы с данными, вводимыми пользователем
@@ -151,7 +156,7 @@ def calculate(message, func, a):
     try:
         b = float(message.text)
     except ValueError:
-        bot.send_message(message.chat.id, "❌ <b>Вводите число! Попробуйте еще раз</b>", parse_mode = 'HTML')
+        bot.send_message(message.chat.id, "❌ <b>Вводите число!</b> Попробуйте еще раз", parse_mode = 'HTML')
         bot.register_next_step_handler(message, calculate, func, a)
         bot.delete_message(message.chat.id, message.message_id)
         return
@@ -168,7 +173,7 @@ def handle_max(message):
     data = user_data.get(message.chat.id)
     # Проверка на всякий, а вдруг пользователь решит ввести сообщение до ввода данных
     if not data:
-        bot.send_message(message.chat.id, "❌ <b>Ошибка! Введите функцию и отрезок</b>", parse_mode = 'HTML')
+        bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Введите функцию и отрезок", parse_mode = 'HTML')
         bot.delete_message(message.chat.id, message.message_id)
         return
 
@@ -191,7 +196,7 @@ def handle_max(message):
 def handle_min(message):
     data = user_data.get(message.chat.id)
     if not data:
-        bot.send_message(message.chat.id, "❌ <b>Ошибка! Введите функцию и отрезок</b>", parse_mode = 'HTML')
+        bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Введите функцию и отрезок", parse_mode = 'HTML')
         bot.delete_message(message.chat.id, message.message_id)
         return
 
@@ -212,7 +217,7 @@ def handle_min(message):
 #===ПОСТРОЕНИЕ ГРАФИКА==================================================================================================
 @bot.message_handler(func=lambda m: m.text == "📊 Построить график")
 def ask_simple_function(messege):
-    bot.send_message(messege.chat.id, "[ƒ] Введите функцию f(x) = ")
+    bot.send_message(messege.chat.id, "<i><b>[ƒ]</b></i>> Введите функцию <i>f(x) = </i>", parse_mode = 'HTML')
     bot.register_next_step_handler(messege, get_simple_function)
 
 def get_simple_function(message):
@@ -222,7 +227,7 @@ def get_simple_function(message):
 
     func_raw = message.text
     if not validate(func_raw):
-        bot.send_message(message.chat.id, "❌ Синтаксическая ошибка! Попробуйте еще раз")
+        bot.send_message(message.chat.id, "❌ <b>Синтаксическая ошибка!</b> Попробуйте еще раз", parse_mode = 'HTML')
         bot.register_next_step_handler(message, get_simple_function)
         bot.delete_message(message.chat.id, message.message_id)
         return
