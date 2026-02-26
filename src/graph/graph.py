@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import re
 import os
@@ -76,19 +78,24 @@ def validate(function):
 a, b - границы отрезка
 '''
 
+# ДИХОТОМИЯ МАКСИМУМ
 
-def dichotomy(a, b):
+def dichotomy_max(a, b):
     eps = 1e-6  # эпсилон - он же шаг
     r = eps / 2  # отступы от середины отрезка
     global c  # ввел глобальную переменную, чтобы потом ее использовать
 
+    if a > b:
+        c = None
+        return f'❌ Ошибка: интервал задан некорректно.'
+
     if a == b:
         c = None
-        return f'Ошибка: интервал задан двумя совподающими точками.'
+        return f'❌ Ошибка: интервал задан двумя совподающими точками.'
 
     if np.isnan(function(a)) and np.isnan(function(b)):
         c = None
-        return f'Ошибка: функция не определена на отрезке ({a}; {b})'
+        return f'❌ Ошибка: функция не определена на отрезке ({a}; {b})'
 
     while abs(b - a) > eps:  # оценка отрезков, пока их длина не станет меньше шага
         c = (a + b) / 2
@@ -102,11 +109,49 @@ def dichotomy(a, b):
     # вывод данных
     if np.isnan(function(c)):
         c = None
-        return f'Ошибка: функция не определена на отрезке ({a}; {b})'
+        return f'❌ Ошибка: функция не определена на отрезке ({a}; {b})'
 
-    print('> Найден максимум функции: ')
+    # print('> Найден максимум функции: ')
     # округление сделано до 4 цифр после запятой для большего удобства
     return f'f(x_max) = {round(function(c), 4)}, x_max = {round(c, 4)}'
+
+# ДИХОТОМИЯ МИНИМУМ
+
+def dichotomy_min(a, b):
+    eps = 1e-6  # эпсилон - он же шаг
+    r = eps / 2  # отступы от середины отрезка
+    global c  # ввел глобальную переменную, чтобы потом ее использовать
+
+    if a > b:
+        c = None
+        return f'❌ Ошибка: интервал задан некорректно.'
+
+    if a == b:
+        c = None
+        return f'❌ Ошибка: интервал задан двумя совподающими точками.'
+
+    if np.isnan(function(a)) and np.isnan(function(b)):
+        c = None
+        return f'❌ Ошибка: функция не определена на отрезке ({a}; {b})'
+
+    while abs(b - a) > eps:  # оценка отрезков, пока их длина не станет меньше шага
+        c = (a + b) / 2
+
+        # сравним значения функций по разные концы отрезка:
+
+        if function(c - r) < function(c + r):
+            b = c
+        else:
+            a = c
+    # вывод данных
+    if np.isnan(function(c)):
+        c = None
+        return f'Ошибка: функция не определена на отрезке ({a}; {b})'
+
+    # print('> Найден максимум функции: ')
+    # округление сделано до 4 цифр после запятой для большего удобства
+    return f'f(x_min) = {round(function(c), 4)}, x_min = {round(c, 4)}'
+
 
 
 '''
@@ -142,6 +187,22 @@ def graph(i, func, a, b, save_dir='./imgs'):
         plt.close()
         return path
 
+def simple_graph(i, func, save_dir='./imgs'):
+
+    x = np.linspace(-20, 20, 1000)
+    y = function(x)
+
+    plt.plot(x, y, label='f(x)', color='red', linestyle='solid')
+    plt.title('График f(x)')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.grid(True)
+
+    os.makedirs(save_dir, exist_ok=True)
+    path = os.path.join(save_dir, f'{i}.png')
+    plt.savefig(path)
+    plt.close()
+    return path
 
 # i = 123
 #
