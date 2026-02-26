@@ -15,6 +15,9 @@ def parse(expr):
     # очевидно X <=> x
     expr = expr.replace('X', 'x')
 
+    # , <=> .
+    expr = expr.replace(',', '.')
+
     # умножение через пробел или без: 2x <=> 2*x
     expr = re.sub(r'(\d)(x)', r'\1*\2', expr)
     expr = re.sub(r'(\d)(sin|cos|tan|exp|log|sqrt|abs)', r'\1*\2', expr)
@@ -68,6 +71,7 @@ def validate(function):
         result = eval(parse(function), dict)
         if not isinstance(result, (int, float, np.floating)) or ('x' not in str(parse(function)).lower()):
             return False
+
         return True
     except:
         return False
@@ -171,7 +175,16 @@ def graph(i, func, a, b, save_dir='./imgs'):
         print(f'> График не был построен.')
     else:
         x = np.linspace(a, b, 1000)
-        y = function(x)
+        # поменял принцип получения y, теперь он проверяет, вещественное ли это число, иначе вкидывает пустоту
+        y = []
+        for xi in x:
+            value = function(xi)
+            try:
+                y.append(float(np.real(value)))
+            except:
+                y.append(np.nan)
+        # конвертация в массив нампая, где все элементы - дробные числа
+        y = np.array(y, dtype = float)
 
         plt.axhline(y=function(c), color='blue', linestyle='--')
         plt.axvline(x=c, color='blue', linestyle='--')
@@ -191,7 +204,16 @@ def graph(i, func, a, b, save_dir='./imgs'):
 def simple_graph(i, func, save_dir='./imgs'):
 
     x = np.linspace(-20, 20, 1000)
-    y = function(x)
+    # поменял принцип получения y, теперь он проверяет, вещественное ли это число, иначе вкидывает пустоту
+    y = []
+    for xi in x:
+        value = function(xi)
+        try:
+            y.append(float(np.real(value)))
+        except:
+            y.append(np.nan)
+    # конвертация в массив нампая, где все элементы - дробные числа
+    y = np.array(y, dtype=float)
 
     plt.plot(x, y, label='f(x)', color='red', linestyle='solid')
     plt.title('График f(x)')
