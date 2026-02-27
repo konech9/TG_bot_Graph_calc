@@ -1,17 +1,42 @@
 2026-02-26 04:33:35,408 [INFO] Запуск бота | id: 1633373556 |username: @Cnstrct13 |имя: >onemoretime None |
-
 2026-02-26 04:34:07,634 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
-
 2026-02-26 11:15:30,167 [INFO] Запуск бота | id: 5620370283 | username: @lqjkerr | имя: ll Eclips None |
-
 2026-02-26 11:15:30,241 [INFO] Запуск бота | id: 894631663 | username: @alekey_kaev | имя: Alekey Kaev |
-
 2026-02-26 11:17:15,176 [INFO] Запуск бота | id: 1281917400 | username: @yalublulaimy | имя: уляна None |
-
 2026-02-26 11:17:15,852 [INFO] Запуск бота | id: 1281917400 | username: @yalublulaimy | имя: уляна None |
-
 2026-02-26 12:15:32,917 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**3 
 2026-02-26 12:32:34,716 [INFO] Запуск бота | id: 8532672431 | username: @Krazz1kss | имя: Timofey Krazznov |
-
 2026-02-26 12:32:55,217 [INFO] График | id: 8532672431 | username: @Krazz1kss | f(x) = 5*x 
 2026-02-26 12:34:29,758 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-02-26 12:58:58,293 [INFO] Запуск бота | id: 1073024503 | username: @Julia119Malina | имя: Julia None |
+2026-02-26 12:59:45,583 [INFO] График (максимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = 3*x**2 + 17*sqrt(x-2*abs(x)) | отрезок: [-10.0]; [100.0] | результат: ❌ Ошибка: функция не определена на отрезке (-10.0; 100.0)
+2026-02-26 12:59:54,099 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 3*x**2 + 17*sqrt(x-2*abs(x)) 
+2026-02-26 13:01:14,068 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 3*x**2 + 17*sqrt(2*abs(x)) 
+2026-02-26 14:53:06,776 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**(0.69*67) 
+2026-02-26 15:32:50,059 [INFO] График (минимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x**(25/3)+15*sqrt(x)) + x | отрезок: [-228.0]; [67.0] | результат: f(x_min) = 12.1338, x_min = 11.6366
+2026-02-26 15:33:52,401 [INFO] График (минимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x)+10 | отрезок: [-67.0]; [67.0] | результат: f(x_min) = 9.0, x_min = -1.5708
+2026-02-26 15:35:31,601 [INFO] График (минимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x**(25/3)+15*sqrt(x)) + x | отрезок: [-1.0]; [4.0] | результат: f(x_min) = 2.366, x_min = 3.3659
+2026-02-26 15:36:28,474 [INFO] График (максимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x**(25/3)+15*sqrt(x)) + x | отрезок: [-1.0]; [4.0] | результат: f(x_max) = 1.8589, x_max = 0.8631
+2026-02-26 15:38:58,015 [INFO] График (максимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = abs(x+23*x)/x**2 | отрезок: [1.0]; [0.0] | результат: ❌ Ошибка: интервал задан некорректно.
+2026-02-26 15:41:06,044 [INFO] График (максимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = x | отрезок: [0.0]; [-1.0] | результат: ❌ Ошибка: интервал задан некорректно.
+a должно быть меньше b
+2026-02-27 16:56:45,376 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:45,404 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:45,717 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:45,738 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:45,968 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:46,014 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:46,243 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:46,309 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:46,527 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:46,568 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:46,817 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:46,912 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:47,164 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:47,236 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:47,435 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:50,531 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:50,772 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:50,873 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:56:51,062 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 16:58:27,924 [INFO] График (максимум) | id: 754886907 | username: @konech9 | f(x) = sin(x) + 3 | отрезок: [-10.0]; [10.0] | результат: f(x_max) = 4.0, x_max = 7.854

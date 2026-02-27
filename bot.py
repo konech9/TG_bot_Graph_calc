@@ -83,7 +83,7 @@ def send_picture_examples(message):
                 "<b>Операторы:</b>\n"
                 "<code>+</code> - сложение\n"
                 "<code>-</code> - вычитание\n"
-                "<code>*</code> - умножение\n"
+                "<code>*</code> или <i>янапр:</i> <code>2x</code>  - умножение\n"
                 "<code>/</code> - деление\n"
                 "<code>^</code> или <code>**</code> - степень\n\n"
                 "<b>Функции^</b>\n"
@@ -103,7 +103,7 @@ def send_picture_examples(message):
                 "<code>x^2 + 2x + 1</code>\n"
                 "<code>sqrt(x) + ln(x)</code>\n"
                 "<code>2sin(x)</code>\n\n"
-                "🤓 <b>Создатель бота:</b> <b><i><a href='https://t.me/Cnstrct13'>>onemoretime</a></i></b> \n"
+                "🤓 <b>Создатель бота (📲 Обратная связь):</b> <b><i><a href='https://t.me/Cnstrct13'>>onemoretime</a></i></b> \n"
                 "<b><i><a href='https://t.me/pritonoflizzaopium'>-TGC</a></i></b>",
         parse_mode="HTML"
     )
