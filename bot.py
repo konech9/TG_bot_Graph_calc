@@ -1,3 +1,5 @@
+from asyncio import exceptions
+
 import telebot
 import os
 from dotenv import load_dotenv
@@ -52,11 +54,14 @@ def menu_graph():
 
 #===СТАРТ, ВЫКИДЫВАЕТ ПАРУ ФОТО=========================================================================================
 def send_picture_start(message):
-    photo_path = os.path.join(pictures_dir, "src", "pictures", "DICHOTOMY.png")
-    with open(photo_path, "rb") as photo:
-        bot.send_photo(message.chat.id, photo, caption = f"👋 Приветствую вас, {message.from_user.first_name}, в GraphBOT!\n\n"
-                                                         f"Рекомендуем ознакомиться с синтаксисом ввода функции в пункте "
-                                                         f"ℹ️ Информация")
+    try:
+        photo_path = os.path.join(pictures_dir, "src", "pictures", "DICHOTOMY.png")
+        with open(photo_path, "rb") as photo:
+            bot.send_photo(message.chat.id, photo, caption = f"👋 Приветствую вас, {message.from_user.first_name}, в GraphBOT!\n\n"
+                                                            f"Рекомендуем ознакомиться с синтаксисом ввода функции в пункте "
+                                                            f"ℹ️ Информация")
+    except Exception as e:
+        logger.error('Fatal error, command Start: ', e)
 
 
 #===ПУНКТ МЕНЮ "ИНФОРМАЦИЯ"=============================================================================================
@@ -69,45 +74,48 @@ def send_picture_start(message):
 '''
 
 def send_picture_examples(message):
-    examples_dir = os.path.join(pictures_dir, "src", "pictures", "examples")
-    files = [f for f in os.listdir(examples_dir) if f.endswith((".png", ".jpg", ".jpeg"))]
-    media = [InputMediaPhoto(open(os.path.join(examples_dir, f), "rb")) for f in files]
-    media[0] = InputMediaPhoto(
-        open(os.path.join(examples_dir, files[0]), "rb"),
-        caption="🤖 <b>GraphBOT</b> умеет <i>строить графики</i>, а также <i>находить "
-                "минимум и максимум функции</i> на выбранном интервале!\n\n"
-                "✍️ Примеры работы бота выше.\n\n"
-                "<b>📖 Синтаксис:</b>\n"
-                "<b>Переменная:</b>\n"
-                "<code>x</code> или <code>X</code>\n\n"
-                "<b>Операторы:</b>\n"
-                "<code>+</code> - сложение\n"
-                "<code>-</code> - вычитание\n"
-                "<code>*</code> или <i>янапр:</i> <code>2x</code>  - умножение\n"
-                "<code>/</code> - деление\n"
-                "<code>^</code> или <code>**</code> - степень\n\n"
-                "<b>Функции^</b>\n"
-                "<code>sin(x)</code> - синус\n"
-                "<code>cos(x)</code> - косинус\n"
-                "<code>tan(x)</code> - тангенс\n"
-                "<code>exp(x)</code> - экспонента\n"
-                "<code>log(x)</code> - натуральный логарифм\n"
-                "<code>ln(x)</code> - натуральный логарифм\n"
-                "<code>sqrt(x)</code> - квадратный корень\n"
-                "<code>abs(x)</code> или <code>|x|</code> - модуль\n\n"
-                "<b>Константы:</b>\n"
-                "<code>pi</code>  число π ≈ 3.14159\n"
-                "<code>e</code>   число e ≈ 2.71828\n\n"
-                "<b>Примеры:</b>\n"
-                "<code>sin(x) + cos(x)</code>\n"
-                "<code>x^2 + 2x + 1</code>\n"
-                "<code>sqrt(x) + ln(x)</code>\n"
-                "<code>2sin(x)</code>\n\n"
-                "🤓 <b>Создатель бота (📲 Обратная связь):</b> <b><i><a href='https://t.me/Cnstrct13'>>onemoretime</a></i></b> \n"
-                "<b><i><a href='https://t.me/pritonoflizzaopium'>-TGC</a></i></b>",
-        parse_mode="HTML"
-    )
-    bot.send_media_group(message.chat.id, media)
+    try:
+        examples_dir = os.path.join(pictures_dir, "src", "pictures", "examples")
+        files = [f for f in os.listdir(examples_dir) if f.endswith((".png", ".jpg", ".jpeg"))]
+        media = [InputMediaPhoto(open(os.path.join(examples_dir, f), "rb")) for f in files]
+        media[0] = InputMediaPhoto(
+            open(os.path.join(examples_dir, files[0]), "rb"),
+            caption="🤖 <b>GraphBOT</b> умеет <i>строить графики</i>, а также <i>находить "
+                    "минимум и максимум функции</i> на выбранном интервале!\n\n"
+                    "✍️ Примеры работы бота выше.\n\n"
+                    "<b>📖 Синтаксис:</b>\n\n"
+                    "<b>Переменная:</b>\n"
+                    "<code>x</code> или <code>X</code>\n\n"
+                    "<b>Операторы:</b>\n"
+                    "<code>+</code> - сложение\n"
+                    "<code>-</code> - вычитание\n"
+                    "<code>*</code> или <i>янапр:</i> <code>2x</code>  - умножение\n"
+                    "<code>/</code> - деление\n"
+                    "<code>^</code> или <code>**</code> - степень\n\n"
+                    "<b>Функции:</b>\n"
+                    "<code>sin(x)</code> - синус\n"
+                    "<code>cos(x)</code> - косинус\n"
+                    "<code>tan(x)</code> - тангенс\n"
+                    "<code>exp(x)</code> - экспонента\n"
+                    "<code>log(x)</code> - натуральный логарифм\n"
+                    "<code>ln(x)</code> - натуральный логарифм\n"
+                    "<code>sqrt(x)</code> - квадратный корень\n"
+                    "<code>abs(x)</code> или <code>|x|</code> - модуль\n\n"
+                    "<b>Константы:</b>\n"
+                    "<code>pi</code>  число π ≈ 3.14159\n"
+                    "<code>e</code>   число e ≈ 2.71828\n\n"
+                    "<b>Примеры:</b>\n"
+                    "<code>sin(x) + cos(x)</code>\n"
+                    "<code>x^2 + 2x + 1</code>\n"
+                    "<code>sqrt(x) + ln(x)</code>\n"
+                    "<code>2sin(x)</code>\n\n"
+                    "🤓 <b>Создатель бота (📲 Обратная связь):</b> <b><i><a href='https://t.me/Cnstrct13'>>onemoretime</a></i></b> \n"
+                    "<b><i><a href='https://t.me/pritonoflizzaopium'>-TGC</a></i></b>",
+            parse_mode="HTML"
+        )
+        bot.send_media_group(message.chat.id, media)
+    except Exception as e:
+        logger.error('Fatal error, command Information: ', e)
 
 #===ВЫХОД НА ГЛАВНУЮ====================================================================================================
 @bot.message_handler(func=lambda m: m.text == "🚪 На главную")

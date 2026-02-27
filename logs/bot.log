@@ -40,3 +40,14 @@ a должно быть меньше b
 2026-02-27 16:56:50,873 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
 2026-02-27 16:56:51,062 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
 2026-02-27 16:58:27,924 [INFO] График (максимум) | id: 754886907 | username: @konech9 | f(x) = sin(x) + 3 | отрезок: [-10.0]; [10.0] | результат: f(x_max) = 4.0, x_max = 7.854
+2026-02-27 17:36:09,211 [INFO] Запуск бота | id: 754886907 | username: @konech9 | имя: Dmitry None |
+2026-02-27 17:36:15,761 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-02-27 17:36:16,306 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-02-27 17:36:17,648 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-02-27 17:36:18,212 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-02-27 17:36:19,294 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-02-27 17:36:19,811 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-02-27 17:36:20,654 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-02-27 17:36:21,631 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-02-27 17:39:16,426 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 3*pi*x 
+2026-02-27 17:42:24,127 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 3*abs(x*pi) 
