@@ -162,6 +162,9 @@ def ask_a(message):
     func_raw = message.text
     if not validate(func_raw):
         bot.send_message(message.chat.id, "❌ <b>Синтаксическая ошибка!</b> Попробуйте еще раз", parse_mode = 'HTML')
+        logger.error(f'Ошибка при построении | id: {message.from_user.id} | '
+                    f'username: @{message.from_user.username} | '
+                    f'f(x) = {func_raw} ')
         bot.register_next_step_handler(message, ask_a)
         bot.delete_message(message.chat.id, message.message_id)
         return
@@ -279,6 +282,9 @@ def get_simple_function(message):
     func_raw = message.text
     if not validate(func_raw):
         bot.send_message(message.chat.id, "❌ <b>Синтаксическая ошибка!</b> Попробуйте еще раз", parse_mode = 'HTML')
+        logger.error(f'Ошибка при построении | id: {message.from_user.id} | '
+                    f'username: @{message.from_user.username} | '
+                    f'f(x) = {func_raw} ')
         bot.register_next_step_handler(message, get_simple_function)
         bot.delete_message(message.chat.id, message.message_id)
         return

@@ -77,68 +77,118 @@ a, b - границы отрезка
 
 # ДИХОТОМИЯ МАКСИМУМ
 def dichotomy_max(a, b):
-    eps = 1e-6  # эпсилон - он же шаг
-    r = eps / 2  # отступы от середины отрезка
-    global c  # ввел глобальную переменную, чтобы потом ее использовать
+    global c
+    eps = 1e-6
+    r = eps / 2
 
     if a > b:
         c = None
         return f'❌ Ошибка: интервал задан некорректно.\na должно быть меньше b'
     if a == b:
         c = None
-        return f'❌ Ошибка: интервал задан двумя совподающими точками.'
+        return f'❌ Ошибка: интервал задан двумя совпадающими точками.'
     if np.isnan(function(a)) and np.isnan(function(b)):
         c = None
         return f'❌ Ошибка: функция не определена на отрезке ({a}; {b})'
 
-    while abs(b - a) > eps:  # оценка отрезков, пока их длина не станет меньше шага
-        c = (a + b) / 2
+    #===Здесь бьем область на 1000 сегментов и на каждом из них считаем минимум/максимум================================
 
-        # сравним значения функций по разные концы отрезка:
-        if function(c - r) > function(c + r):
-            b = c
-        else:
-            a = c
+    segments = 1000
+    step = (b - a) / segments
 
-    # вывод данных
-    if np.isnan(function(c)):
-        c = None
-        return f'❌ Ошибка: функция не определена на отрезке ({a}; {b})'
+    best_c = None
+    best_val = float('-inf')
 
-    # округление сделано до 4 цифр после запятой для большего удобства
+    for i in range(segments):
+        seg_a = a + i * step
+        seg_b = seg_a + step
+
+        if np.isnan(function(seg_a)) and np.isnan(function(seg_b)):
+            continue
+
+        local_a, local_b = seg_a, seg_b
+        while abs(local_b - local_a) > eps:
+            mid = (local_a + local_b) / 2
+            if function(mid - r) > function(mid + r):
+                local_b = mid
+            else:
+                local_a = mid
+
+        local_c = (local_a + local_b) / 2
+        local_val = function(local_c)
+
+        # пропускаем nan, inf и значения на краях подотрезка (асимптоты)
+        if np.isnan(local_val) or np.isinf(local_val):
+            continue
+        if abs(local_c - seg_a) < eps or abs(local_c - seg_b) < eps:
+            continue
+
+        if local_val > best_val:
+            best_val = local_val
+            best_c = local_c
+
+    c = best_c
+    if c is None:
+        return f'❌ Ошибка: не удалось найти максимум на отрезке ({a}; {b})'
+
     return f'f(x_max) = {round(function(c), 4)}, x_max = {round(c, 4)}'
 
 # ДИХОТОМИЯ МИНИМУМ
 def dichotomy_min(a, b):
-    eps = 1e-6  # эпсилон - он же шаг
-    r = eps / 2  # отступы от середины отрезка
-    global c  # ввел глобальную переменную, чтобы потом ее использовать
+    global c
+    eps = 1e-6
+    r = eps / 2
 
     if a > b:
         c = None
         return f'❌ Ошибка: интервал задан некорректно.\na должно быть меньше b'
     if a == b:
         c = None
-        return f'❌ Ошибка: интервал задан двумя совподающими точками.'
+        return f'❌ Ошибка: интервал задан двумя совпадающими точками.'
     if np.isnan(function(a)) and np.isnan(function(b)):
         c = None
         return f'❌ Ошибка: функция не определена на отрезке ({a}; {b})'
 
-    while abs(b - a) > eps:  # оценка отрезков, пока их длина не станет меньше шага
-        c = (a + b) / 2
+    #===Здесь бьем область на 1000 сегментов и на каждом из них считаем минимум/максимум================================
 
-        # сравним значения функций по разные концы отрезка:
-        if function(c - r) < function(c + r):
-            b = c
-        else:
-            a = c
+    segments = 1000
+    step = (b - a) / segments
 
-    # вывод данных
-    if np.isnan(function(c)):
-        c = None
-        return f'❌ Ошибка: функция не определена на отрезке ({a}; {b})'
+    best_c = None
+    best_val = float('inf')
 
-    # округление сделано до 4 цифр после запятой для большего удобства
+    for i in range(segments):
+        seg_a = a + i * step
+        seg_b = seg_a + step
+
+        if np.isnan(function(seg_a)) and np.isnan(function(seg_b)):
+            continue
+
+        local_a, local_b = seg_a, seg_b
+        while abs(local_b - local_a) > eps:
+            mid = (local_a + local_b) / 2
+            if function(mid - r) < function(mid + r):
+                local_b = mid
+            else:
+                local_a = mid
+
+        local_c = (local_a + local_b) / 2
+        local_val = function(local_c)
+
+        # пропускаем nan, inf и значения на краях подотрезка (асимптоты)
+        if np.isnan(local_val) or np.isinf(local_val):
+            continue
+        if abs(local_c - seg_a) < eps or abs(local_c - seg_b) < eps:
+            continue
+
+        if local_val < best_val:
+            best_val = local_val
+            best_c = local_c
+
+    c = best_c
+    if c is None:
+        return f'❌ Ошибка: не удалось найти минимум на отрезке ({a}; {b})'
+
     return f'f(x_min) = {round(function(c), 4)}, x_min = {round(c, 4)}'
 
 '''
