@@ -73,3 +73,11 @@ a должно быть меньше b
 2026-03-03 01:01:47,811 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = (6)/(2*x+1) - (1 + log2(2+x))/(x) 
 2026-03-03 01:02:09,814 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 
 2026-03-03 01:05:39,554 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**3 + log2(x) - sqrt(x**3) 
+2026-03-03 01:09:18,811 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x) + sin(3*x)/3 + sin(5*x)/5 + sin(7*x)/7 
+2026-03-03 01:09:35,488 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x) * exp(-0.3*x) 
+2026-03-03 01:09:47,265 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = exp(-x**2) * cos(10*x) 
+2026-03-03 01:09:54,880 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = exp(-x**2) * cos(10*x) 
+2026-03-03 01:10:00,008 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(1/x) 
+2026-03-03 01:10:09,537 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x) * cos(x**2) + cos(x) * sin(x**2) 
+2026-03-03 01:10:19,759 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(log(x) * 10) 
+2026-03-03 01:10:31,509 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x**2) 
