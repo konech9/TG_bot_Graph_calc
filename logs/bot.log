@@ -51,3 +51,25 @@ a должно быть меньше b
 2026-02-27 17:36:21,631 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
 2026-02-27 17:39:16,426 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 3*pi*x 
 2026-02-27 17:42:24,127 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 3*abs(x*pi) 
+2026-02-27 17:44:31,469 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 3*pi*x 
+2026-02-27 17:44:51,530 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = pi**2 + x**3 + 10*sin(x) 
+2026-02-28 14:30:31,111 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(cos(x)) 
+2026-02-28 14:31:05,376 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x)**2 + log(x) 
+2026-02-28 14:35:44,727 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sqrt((x-4)**2 - 36)
+2026-02-28 19:38:02,080 [INFO] Запуск бота | id: 808109978 | username: @shadow_etarnal | имя: Dmitriy None |
+2026-02-28 19:41:19,652 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = Cos(x) 
+2026-02-28 19:41:36,191 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = cos(x) 
+2026-02-28 19:42:04,347 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = Cos(x) 
+2026-02-28 19:43:11,233 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = Cos(x) 
+2026-02-28 19:45:31,467 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = cos(x) 
+2026-03-03 00:31:56,827 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = log2(x) 
+2026-03-03 00:32:28,085 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = log(x) 
+2026-03-03 00:32:40,920 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = log(x) 
+2026-03-03 00:34:55,882 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 2*log10(x) 
+2026-03-03 00:43:29,209 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 2*log2(x) 
+2026-03-03 00:46:03,732 [INFO] График (максимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = 2*log2(x) | отрезок: [0.0]; [15.0] | результат: f(x_max) = 7.8138, x_max = 15.0
+2026-03-03 00:54:36,688 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 2*log2(x) 
+2026-03-03 00:54:51,737 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = 2*log2(x) 
+2026-03-03 01:01:47,811 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = (6)/(2*x+1) - (1 + log2(2+x))/(x) 
+2026-03-03 01:02:09,814 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 
+2026-03-03 01:05:39,554 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**3 + log2(x) - sqrt(x**3) 

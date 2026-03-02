@@ -89,7 +89,7 @@ def send_picture_examples(message):
                     "<b>Операторы:</b>\n"
                     "<code>+</code> - сложение\n"
                     "<code>-</code> - вычитание\n"
-                    "<code>*</code> или <i>янапр:</i> <code>2x</code>  - умножение\n"
+                    "<code>*</code> или <i>напр:</i> <code>2x</code>  - умножение\n"
                     "<code>/</code> - деление\n"
                     "<code>^</code> или <code>**</code> - степень\n\n"
                     "<b>Функции:</b>\n"
