@@ -120,8 +120,6 @@ def dichotomy_max(a, b):
         # пропускаем nan, inf и значения на краях подотрезка (асимптоты)
         if np.isnan(local_val) or np.isinf(local_val):
             continue
-        if abs(local_c - seg_a) < eps or abs(local_c - seg_b) < eps:
-            continue
 
         if local_val > best_val:
             best_val = local_val
@@ -177,8 +175,6 @@ def dichotomy_min(a, b):
 
         # пропускаем nan, inf и значения на краях подотрезка (асимптоты)
         if np.isnan(local_val) or np.isinf(local_val):
-            continue
-        if abs(local_c - seg_a) < eps or abs(local_c - seg_b) < eps:
             continue
 
         if local_val < best_val:
@@ -245,6 +241,7 @@ def graph(i, func, a, b, save_dir='./imgs'):
     ax.set_title('График f(x)')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
+    ax.set_xlim(a, b)
 
     # в случае если папки не будет, эта штука создаст папку сама с назв. imgs
     os.makedirs(save_dir, exist_ok=True)

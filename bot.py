@@ -206,6 +206,12 @@ def calculate(message, func, a):
         bot.delete_message(message.chat.id, message.message_id)
         return
 
+    MAX = 1e4
+    if b - a > MAX:
+        bot.send_message(message.chat.id, f"❌ <b>Слишком большой отрезок!</b> Максимальная длина: {MAX} \n Введите конец отрезка <i>b = </i>", parse_mode = 'HTML')
+        bot.register_next_step_handler(message, calculate, func, a)
+        return
+
     # сохранение данных после всех проверок!
     user_data[message.chat.id] = {'func': func, 'a': a, 'b': b}
     graph_module.func = func
@@ -224,7 +230,6 @@ def handle_max(message):
 
     graph_module.func = data['func']
     result_text = dichotomy_max(data['a'], data['b'])
-    c = graph_module.c
     # Смотрит сохраненный файл, если графика нет, то и изображения тоже, значит и смотреть нечего, тогда просто выводим рез. Дихотомии
     PATH = build_graph(message.from_user.id, data['func'], data['a'], data['b'], GRAPHS_DIR)
 
@@ -252,7 +257,6 @@ def handle_min(message):
 
     graph_module.func = data['func']
     result_text = dichotomy_min(data['a'], data['b'])
-    c = graph_module.c
     PATH = build_graph(message.from_user.id, data['func'], data['a'], data['b'], GRAPHS_DIR)
 
     # Лог для построения графика
@@ -270,9 +274,9 @@ def handle_min(message):
 
 #===ПОСТРОЕНИЕ ГРАФИКА==================================================================================================
 @bot.message_handler(func=lambda m: m.text == "📊 Построить график")
-def ask_simple_function(messege):
-    bot.send_message(messege.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode = 'HTML')
-    bot.register_next_step_handler(messege, get_simple_function)
+def ask_simple_function(message):
+    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode = 'HTML')
+    bot.register_next_step_handler(message, get_simple_function)
 
 def get_simple_function(message):
     if is_cancelled(message):
