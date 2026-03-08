@@ -39,7 +39,17 @@ pictures_dir = os.path.dirname(os.path.abspath(__file__))
 # Словарик для работы с данными, вводимыми пользователем, туда записывается a, b и функция, в случае чего перезаписываются
 user_data = {}
 
-# Настройки пользователя, структура: {chat_id: {'default_a': -20, 'default_b': 10}}
+'''
+Важный блок с настройками пользователя, сохраняет все в json файл в формате:
+
+{
+    "[user_id]": {
+        "default_a": [DEFAULT_A],
+        "default_b": [DEFAULT_B]
+    }
+}
+'''
+
 SETTINGS_FILE = os.path.join(BASE_DIR, "user_settings.json")
 
 def load_settings():
