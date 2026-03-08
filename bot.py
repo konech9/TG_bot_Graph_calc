@@ -9,6 +9,7 @@ import numpy as np
 from src.graph.graph import parse, validate, dichotomy_max, dichotomy_min, graph as build_graph, simple_graph
 import src.graph.graph as graph_module
 from logger import logger
+import json
 
 #===УСЛОВНЫЙ SETUP======================================================================================================
 
@@ -39,7 +40,23 @@ pictures_dir = os.path.dirname(os.path.abspath(__file__))
 user_data = {}
 
 # Настройки пользователя, структура: {chat_id: {'default_a': -20, 'default_b': 10}}
-user_settings = {}
+SETTINGS_FILE = os.path.join(BASE_DIR, "user_settings.json")
+
+def load_settings():
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_settings_file():
+    with open(SETTINGS_FILE, "w") as f:
+        json.dump(user_settings, f, indent=4)
+
+# Загружаем настройки при запуске
+user_settings = load_settings()
 
 # Стартовые значения диапазонов для построения графиков
 DEFAULT_A = -20
@@ -85,9 +102,9 @@ def send_picture_start(message):
     try:
         photo_path = os.path.join(pictures_dir, "src", "pictures", "DICHOTOMY.png")
         with open(photo_path, "rb") as photo:
-            bot.send_photo(message.chat.id, photo, caption = f"👋 Приветствую вас, {message.from_user.first_name}, в GraphBOT!\n\n"
+            bot.send_photo(message.chat.id, photo, caption = f"👋 Приветствую вас, {message.from_user.first_name}, в <b>GraphBOT!</b>\n\n"
                                                             f"Рекомендуем ознакомиться с синтаксисом ввода функции в пункте "
-                                                            f"ℹ️ Информация")
+                                                            f"ℹ️ Информация", parse_mode = 'HTML')
     except Exception as e:
         logger.error('Fatal error, command Start: ', e)
 
@@ -102,6 +119,7 @@ def menu_exit():
 #===ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ=============================================================================================
 
 def get_default_range(chat_id):
+    chat_id = str(chat_id)
     settings = user_settings.get(chat_id, {})
     a = settings.get('default_a', DEFAULT_A)
     b = settings.get('default_b', DEFAULT_B)
@@ -216,7 +234,16 @@ def save_settings(message):
             bot.register_next_step_handler(message, save_settings)
             return
 
-        user_settings[message.chat.id] = {'default_a': a, 'default_b': b}
+        # Сохранение в json файл информации о пользователе
+        chat_id = str(message.chat.id)
+
+        user_settings[chat_id] = {
+            'default_a': a,
+            'default_b': b
+        }
+
+        save_settings_file()
+
         bot.send_message(message.chat.id,
                          f"✅ <b>Диапазон обновлён:</b> <code>[{a}; {b}]</code>",
                          parse_mode='HTML',
