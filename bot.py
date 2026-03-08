@@ -1,5 +1,3 @@
-from asyncio import exceptions
-
 import telebot
 import os
 from dotenv import load_dotenv
@@ -14,11 +12,16 @@ from logger import logger
 
 #===УСЛОВНЫЙ SETUP======================================================================================================
 
-# пути сохранения картинок для юзеров
+# Пути сохранения картинок для юзеров
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 GRAPHS_DIR = os.path.join(BASE_DIR, "src", "pictures", "users")
 
-# чтобы не было лишних "<string>:1: RuntimeWarning: invalid value encountered in sqrt"
+# Создание необходимых папок
+os.makedirs(GRAPHS_DIR, exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, "src", "pictures", "examples"), exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, "logs"), exist_ok=True)
+
+# Чтобы не было лишних "<string>:1: RuntimeWarning: invalid value encountered in sqrt"
 np.seterr(all='ignore')
 warnings.filterwarnings('ignore')
 
@@ -30,29 +33,54 @@ bot = telebot.TeleBot(TOKEN)
 # Директория для картинок
 pictures_dir = os.path.dirname(os.path.abspath(__file__))
 
+#===ДАННЫЕ ПОЛЬЗОВАТЕЛЯ=================================================================================================
+
+# Словарик для работы с данными, вводимыми пользователем, туда записывается a, b и функция, в случае чего перезаписываются
+user_data = {}
+
+# Настройки пользователя, структура: {chat_id: {'default_a': -20, 'default_b': 10}}
+user_settings = {}
+
+# Стартовые значения диапазонов для построения графиков
+DEFAULT_A = -20
+DEFAULT_B = 20
+
+# Максимальная длина отрезка
+MAX_INTERVAL = 1e4
+
 #===ОСНОВНЫЕ ФУНКЦИИ + МЕНЮ С КНОПКАМИ==================================================================================
 
-#===ОТМЕНА ДЕЙСТВИЯ=====================================================================================================
-CANCEL_BUTTONS = ["🚪 На главную", "📊 Построить график", "ℹ️ Информация", "↕️ Найти Макс/Мин"]
+#1===ОТМЕНА ДЕЙСТВИЯ====================================================================================================
+CANCEL_BUTTONS = [
+    "🚪 На главную", "📊 Построить график", "ℹ️ Информация",
+    "↕️ Найти Макс/Мин", "⚙️ Настройки",
+    ]
+
 def is_cancelled(message):
     return message.text in CANCEL_BUTTONS
 
-#===ОСНОВНОЕ МЕНЮ, НАСТРОЙКА ПУНКТОВ====================================================================================
+#2===ОСНОВНОЕ МЕНЮ, НАСТРОЙКА ПУНКТОВ===================================================================================
 def menu():
     actions = types.ReplyKeyboardMarkup(resize_keyboard=True)
     actions.row(types.KeyboardButton("↕️ Найти Макс/Мин"), types.KeyboardButton("📊 Построить график"))
-    actions.row(types.KeyboardButton("ℹ️ Информация"))
+    actions.row(types.KeyboardButton("ℹ️ Информация"), types.KeyboardButton("⚙️ Настройки"))
     actions.row(types.KeyboardButton("🚪 На главную"))
     return actions
 
-#===ДОП МЕНЮ ДЛЯ ДИХОТОМИИ==============================================================================================
+#3===ДОП МЕНЮ ДЛЯ ДИХОТОМИИ=============================================================================================
 def menu_graph():
     actions = types.ReplyKeyboardMarkup(resize_keyboard=True)
     actions.row(types.KeyboardButton("⬆️ Максимум"), types.KeyboardButton("⬇️ Минимум"))
     actions.row(types.KeyboardButton("🚪 На главную"))
     return actions
 
-#===СТАРТ, ВЫКИДЫВАЕТ ПАРУ ФОТО=========================================================================================
+def menu_interval():
+    actions = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    actions.row(types.KeyboardButton("📐 Ввести отрезок"), types.KeyboardButton("✍️ Использовать текущий"))
+    actions.row(types.KeyboardButton("🚪 На главную"))
+    return actions
+
+#4===СТАРТ, ВЫКИДЫВАЕТ ПАРУ ФОТО========================================================================================
 def send_picture_start(message):
     try:
         photo_path = os.path.join(pictures_dir, "src", "pictures", "DICHOTOMY.png")
@@ -63,6 +91,21 @@ def send_picture_start(message):
     except Exception as e:
         logger.error('Fatal error, command Start: ', e)
 
+#5===ПРОМЕЖУТОЧНОЕ МЕНЮ=================================================================================================
+
+def menu_exit():
+    actions = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    actions.row(types.KeyboardButton("🚪 На главную"))
+    return  actions
+
+
+#===ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ=============================================================================================
+
+def get_default_range(chat_id):
+    settings = user_settings.get(chat_id, {})
+    a = settings.get('default_a', DEFAULT_A)
+    b = settings.get('default_b', DEFAULT_B)
+    return a, b
 
 #===ПУНКТ МЕНЮ "ИНФОРМАЦИЯ"=============================================================================================
 
@@ -141,82 +184,138 @@ def search(message):
     send_picture_examples(message)
     bot.delete_message(message.chat.id, message.message_id)
 
+#===НАСТРОЙКИ===========================================================================================================
+
+@bot.message_handler(func = lambda m: m.text == "⚙️ Настройки")
+def settings(message):
+    a, b = get_default_range(message.chat.id)
+    bot.send_message(message.chat.id,
+                     f'⚙️ <b>Настройки</b> \n \n'
+                     f'<i>Текущий диапазон для построения графика: </i>\n'
+                     f'<code>a = {a}, b = {b}</code> \n \n'
+                     f'При вводе нового диапазона в формате: <code>a b</code> текущий заменится; \n'
+                     f'<i>Например:</i> <code>-20 20</code> \n',
+                     parse_mode = 'HTML', reply_markup=menu_exit())
+    bot.register_next_step_handler(message, save_settings)
+
+def save_settings(message):
+    if is_cancelled(message):
+        main_tab(message)
+        return
+    try:
+        parts = message.text.split()
+        if len(parts) != 2:
+            raise ValueError
+        a, b = float(parts[0]), float(parts[1])
+        if b <= a:
+            raise ValueError
+        if b - a > MAX_INTERVAL:
+            bot.send_message(message.chat.id,
+                             f"❌ <b>Слишком большой диапазон!</b> Максимум: {MAX_INTERVAL}\nПопробуйте еще раз",
+                             parse_mode='HTML')
+            bot.register_next_step_handler(message, save_settings)
+            return
+
+        user_settings[message.chat.id] = {'default_a': a, 'default_b': b}
+        bot.send_message(message.chat.id,
+                         f"✅ <b>Диапазон обновлён:</b> <code>[{a}; {b}]</code>",
+                         parse_mode='HTML',
+                         reply_markup=menu())
+        return  # ← явный выход, чтобы не проваливаться в except
+
+    except ValueError:
+        bot.send_message(message.chat.id,
+                         "❌ <b>Неверный формат!</b> Введите два числа через пробел \n <i>Например:</i> <code>-20 20</code>",
+                         parse_mode='HTML')
+        bot.register_next_step_handler(message, save_settings)
+
+
 #===САМЫЙ ЖИРНЫЙ БЛОК ДЛЯ ДИХОТОМИИ=====================================================================================
 
-'''
-Макс/Мин в деле! Основные функции подтягиваются из graph.py, правда есть пара
-костылей с переменной c например, которая нужна для проверок
-'''
-
 @bot.message_handler(func=lambda m: m.text == "↕️ Найти Макс/Мин")
-
 def ask_function(message):
-    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode = 'HTML')
+    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode='HTML', reply_markup = menu_exit())
     bot.register_next_step_handler(message, ask_a)
 
 def ask_a(message):
-    # Выкидывает на главную, если пользователь захочет выйти
     if is_cancelled(message):
         main_tab(message)
         return
     func_raw = message.text
     if not validate(func_raw):
-        bot.send_message(message.chat.id, "❌ <b>Синтаксическая ошибка!</b> Попробуйте еще раз", parse_mode = 'HTML')
+        bot.send_message(message.chat.id, "❌ <b>Синтаксическая ошибка!</b> Попробуйте еще раз", parse_mode='HTML')
         logger.error(f'Ошибка при построении | id: {message.from_user.id} | '
-                    f'username: @{message.from_user.username} | '
-                    f'f(x) = {func_raw} ')
+                     f'username: @{message.from_user.username} | '
+                     f'f(x) = {func_raw} ')
         bot.register_next_step_handler(message, ask_a)
         bot.delete_message(message.chat.id, message.message_id)
         return
 
     func = parse(func_raw)
-    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите начало отрезка <i>a = </i>", parse_mode = 'HTML')
-    bot.register_next_step_handler(message, ask_b, func)
+    user_data[message.chat.id] = {'func': func, 'func_raw': func_raw}
 
-def ask_b(message, func):
-    # Выкидывает на главную, если пользователь захочет выйти
+    # сохраняет функцию и спрашивает отрезок
+    a, b = get_default_range(message.chat.id)
+    bot.send_message(message.chat.id,
+                     f"📐 Выберите отрезок:\n"
+                     f"Текущий: <code>[{a}; {b}]</code>",
+                     parse_mode='HTML',
+                     reply_markup=menu_interval())
+    bot.register_next_step_handler(message, handle_interval_choice_dichotomy)
+
+# Обработка выбора отрезка
+def handle_interval_choice_dichotomy(message):
+    data = user_data.get(message.chat.id, {})
+    func = data.get('func')
+
+    if message.text == "✍️ Использовать текущий":
+        a, b = get_default_range(message.chat.id)
+        user_data[message.chat.id].update({'a': a, 'b': b})
+        graph_module.func = func
+        bot.send_message(message.chat.id, "✍️ Что ищем?", reply_markup=menu_graph())
+
+    elif message.text == "📐 Ввести отрезок":
+        # [ИЗМЕНЕНО] просим оба числа в одну строку
+        bot.send_message(message.chat.id,
+                         "<i><b>[ƒ]</b></i> Введите отрезок в формате <code>a b</code>\n"
+                         "<i>Например:</i> <code>-20 20</code>",
+                         parse_mode='HTML', reply_markup=menu_exit())
+        bot.register_next_step_handler(message, calculate, func)
+
+    elif is_cancelled(message):
+        main_tab(message)
+
+    else:
+        bot.send_message(message.chat.id, "❌ Используйте кнопки меню")
+        bot.register_next_step_handler(message, handle_interval_choice_dichotomy)
+
+def calculate(message, func):
     if is_cancelled(message):
         main_tab(message)
         return
     try:
-        a = float(message.text)
+        parts = message.text.split()
+        if len(parts) != 2:
+            raise ValueError
+        a, b = float(parts[0]), float(parts[1])
     except ValueError:
-        bot.send_message(message.chat.id, "❌ <b>Вводите число!</b> Попробуйте еще раз", parse_mode = 'HTML')
-        bot.register_next_step_handler(message, ask_b, func)
-        bot.delete_message(message.chat.id, message.message_id)
+        bot.send_message(message.chat.id,
+                         "❌ <b>Неверный формат!</b> Введите два числа через пробел\n"
+                         "<i>Например:</i> <code>-20 20</code>",
+                         parse_mode='HTML')
+        bot.register_next_step_handler(message, calculate, func)
         return
 
-    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите конец отрезка <i>b = </i>", parse_mode = 'HTML')
-    bot.register_next_step_handler(message, calculate, func, a)
-
-# Словарик для работы с данными, вводимыми пользователем, туда записывается a, b и функция, в случае чего перезаписываются
-user_data = {}
-
-def calculate(message, func, a):
-    # Выкидывает на главную, если пользователь захочет выйти
-    if is_cancelled(message):
-        main_tab(message)
-        return
-    try:
-        b = float(message.text)
-    except ValueError:
-        bot.send_message(message.chat.id, "❌ <b>Вводите число!</b> Попробуйте еще раз", parse_mode = 'HTML')
-        # Бот снова кидает пользователя ко вводу параметра, как бы вводя в цикл, пока не получит нужный ответ или пользователь не выйдет
-        bot.register_next_step_handler(message, calculate, func, a)
-        bot.delete_message(message.chat.id, message.message_id)
+    if b - a > MAX_INTERVAL:
+        bot.send_message(message.chat.id,
+                         f"❌ <b>Слишком большой отрезок!</b> Максимальная длина: {MAX_INTERVAL}",
+                         parse_mode='HTML')
+        bot.register_next_step_handler(message, calculate, func)
         return
 
-    MAX = 1e4
-    if b - a > MAX:
-        bot.send_message(message.chat.id, f"❌ <b>Слишком большой отрезок!</b> Максимальная длина: {MAX} \n Введите конец отрезка <i>b = </i>", parse_mode = 'HTML')
-        bot.register_next_step_handler(message, calculate, func, a)
-        return
-
-    # сохранение данных после всех проверок!
     user_data[message.chat.id] = {'func': func, 'a': a, 'b': b}
     graph_module.func = func
-    # Показываем новую клавиатуру с действиями и по ней работаем.
-    bot.send_message(message.chat.id, "✍️ Что ищем?", reply_markup = menu_graph())
+    bot.send_message(message.chat.id, "✍️ Что ищем?", reply_markup=menu_graph())
 
 # Для кнопки МАКСИМУМ
 @bot.message_handler(func=lambda m: m.text == "⬆️ Максимум")
@@ -275,7 +374,7 @@ def handle_min(message):
 #===ПОСТРОЕНИЕ ГРАФИКА==================================================================================================
 @bot.message_handler(func=lambda m: m.text == "📊 Построить график")
 def ask_simple_function(message):
-    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode = 'HTML')
+    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode='HTML', reply_markup=menu_exit())
     bot.register_next_step_handler(message, get_simple_function)
 
 def get_simple_function(message):
@@ -285,29 +384,92 @@ def get_simple_function(message):
 
     func_raw = message.text
     if not validate(func_raw):
-        bot.send_message(message.chat.id, "❌ <b>Синтаксическая ошибка!</b> Попробуйте еще раз", parse_mode = 'HTML')
+        bot.send_message(message.chat.id, "❌ <b>Синтаксическая ошибка!</b> Попробуйте еще раз", parse_mode='HTML')
         logger.error(f'Ошибка при построении | id: {message.from_user.id} | '
-                    f'username: @{message.from_user.username} | '
-                    f'f(x) = {func_raw} ')
+                     f'username: @{message.from_user.username} | '
+                     f'f(x) = {func_raw}')
         bot.register_next_step_handler(message, get_simple_function)
         bot.delete_message(message.chat.id, message.message_id)
         return
 
     func = parse(func_raw)
-    graph_module.func = func
-    PATH = simple_graph(message.from_user.id, func, GRAPHS_DIR)
 
-    # Лог для построения графика
+    # сохраняем функцию и предлагаем выбрать диапазон
+    user_data[message.chat.id] = {'func': func, 'func_raw': func_raw}
+    a, b = get_default_range(message.chat.id)
+    bot.send_message(message.chat.id,
+                     f"📐 Выберите диапазон:\n"
+                     f"Текущий: <code>[{a}; {b}]</code>",
+                     parse_mode='HTML',
+                     reply_markup=menu_interval())
+
+@bot.message_handler(func=lambda m: m.text == "✍️ Использовать текущий")
+def use_default_interval(message):
+    data = user_data.get(message.chat.id)
+    if not data or 'func' not in data:
+        bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Сначала введите функцию", parse_mode='HTML')
+        return
+
+    a, b = get_default_range(message.chat.id)
+    build_simple_graph(message, data['func'], data['func_raw'], a, b)
+
+@bot.message_handler(func=lambda m: m.text == "📐 Ввести отрезок")
+def ask_simple_a(message):
+    data = user_data.get(message.chat.id)
+    if not data or 'func' not in data:
+        bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Сначала введите функцию", parse_mode='HTML')
+        return
+
+    bot.send_message(message.chat.id,
+                     "<i><b>[ƒ]</b></i> Введите отрезок в формате <code>a b</code>\n"
+                     "<i>Например:</i> <code>-20 20</code>",
+                     parse_mode='HTML', reply_markup=menu_exit())
+    bot.register_next_step_handler(message, get_simple_b)
+
+def get_simple_b(message):
+    if is_cancelled(message):
+        main_tab(message)
+        return
+    try:
+        parts = message.text.split()
+        if len(parts) != 2:
+            raise ValueError
+        a, b = float(parts[0]), float(parts[1])
+    except ValueError:
+        bot.send_message(message.chat.id,
+                         "❌ <b>Неверный формат!</b> Введите два числа через пробел\n"
+                         "<i>Например:</i> <code>-20 20</code>",
+                         parse_mode='HTML')
+        bot.register_next_step_handler(message, get_simple_b)
+        return
+
+    if b - a > MAX_INTERVAL:
+        bot.send_message(message.chat.id,
+                         f"❌ <b>Слишком большой отрезок!</b> Максимальная длина: {MAX_INTERVAL}",
+                         parse_mode='HTML')
+        bot.register_next_step_handler(message, get_simple_b)
+        return
+
+    data = user_data.get(message.chat.id, {})
+    build_simple_graph(message, data.get('func'), data.get('func_raw'), a, b)
+
+def build_simple_graph(message, func, func_raw, a, b):
+    graph_module.func = func
+    PATH = simple_graph(message.from_user.id, func, a, b, GRAPHS_DIR)
+
     logger.info(f'График | id: {message.from_user.id} | username: @{message.from_user.username} | '
-                f'f(x) = {func} ')
+                f'f(x) = {func} | отрезок: [{a}; {b}]')
 
     if PATH:
         with open(PATH, "rb") as photo:
-            bot.send_photo(message.chat.id, photo, caption = f'<b>f(x) = <code>{func_raw}</code></b>', parse_mode="HTML")
+            bot.send_photo(message.chat.id, photo,
+                           caption=f'<b>f(x) = <code>{func_raw}</code></b>\n<i>Отрезок: [{a}; {b}]</i>',
+                           parse_mode="HTML")
     else:
-        bot.send_message(message.chat.id, f'❌ График не был построен')
+        bot.send_message(message.chat.id, '❌ График не был построен')
 
     bot.send_message(message.chat.id, "🔎 Чем займемся теперь?", reply_markup=menu())
+
 #=======================================================================================================================
 
 if __name__ == "__main__":

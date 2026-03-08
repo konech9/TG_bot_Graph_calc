@@ -243,6 +243,12 @@ def graph(i, func, a, b, save_dir='./imgs'):
     ax.set_ylabel('y')
     ax.set_xlim(a, b)
 
+    # Смотрим насколько большое значение у фунукции и чуть корректирует масштаб
+    finite_y = y[np.isfinite(y)]
+    if len(finite_y) > 0:
+        half = (b - a) / 2
+        ax.set_ylim(function(c) - half, function(c) + half)
+
     # в случае если папки не будет, эта штука создаст папку сама с назв. imgs
     os.makedirs(save_dir, exist_ok=True)
     path = os.path.join(save_dir, f'{i}.png')
@@ -251,8 +257,8 @@ def graph(i, func, a, b, save_dir='./imgs'):
     return path
 
 # простой график, построение без макс/мин
-def simple_graph(i, func, save_dir='./imgs'):
-    x = np.linspace(-20, 20, 1000)
+def simple_graph(i, func, a, b, save_dir='./imgs'):
+    x = np.linspace(a, b, 1000)
     y = compute_y(x)
 
     # создание фигуры и оси
@@ -263,6 +269,14 @@ def simple_graph(i, func, save_dir='./imgs'):
     ax.set_title('График f(x)')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
+    ax.set_xlim(a, b)
+
+    # Смотрим насколько большое значение у фунукции и чуть корректирует масштаб
+    finite_y = y[np.isfinite(y)]
+    if len(finite_y) > 0:
+        y_center = np.median(finite_y)
+        half = (b - a) / 2
+        ax.set_ylim(y_center - half, y_center + half)
 
     os.makedirs(save_dir, exist_ok=True)
     path = os.path.join(save_dir, f'{i}.png')
