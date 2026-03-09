@@ -3,13 +3,13 @@ import os
 from dotenv import load_dotenv
 from telebot import types
 from telebot.types import InputMediaPhoto
-import re
 import warnings
 import numpy as np
 from src.graph.graph import parse, validate, dichotomy_max, dichotomy_min, graph as build_graph, simple_graph
 import src.graph.graph as graph_module
 from logger import logger
 import json
+from messages.bot_syntax_info import SYNTAX_INFO
 
 #===УСЛОВНЫЙ SETUP======================================================================================================
 
@@ -36,16 +36,16 @@ pictures_dir = os.path.dirname(os.path.abspath(__file__))
 
 #===ДАННЫЕ ПОЛЬЗОВАТЕЛЯ=================================================================================================
 
-# Словарик для работы с данными, вводимыми пользователем, туда записывается a, b и функция, в случае чего перезаписываются
-user_data = {}
-
 '''
-Важный блок с настройками пользователя, сохраняет все в json файл в формате:
-
+Единый словарь для всех данных пользователя, структура:
 {
-    "[user_id]": {
-        "default_a": [DEFAULT_A],
-        "default_b": [DEFAULT_B]
+    "[chat_id]": {
+        "default_a": [DEFAULT_A],       <= сохраняется в json (постоянное)
+        "default_b": [DEFAULT_B],        <= сохраняется в json (постоянное)
+        "func": "[func]",       <= только в памяти (сессионное)
+        "func_raw": "[func_raw]",   <= только в памяти (сессионное)
+        "a": [a],               <= только в памяти (сессионное)
+        "b": [b]                 <= только в памяти (сессионное)
     }
 }
 '''
@@ -61,9 +61,18 @@ def load_settings():
             return {}
     return {}
 
+# сохранение данных в .json файл
 def save_settings_file():
+    # сохраняем только постоянные настройки, без сессионных данных, перезаписываем словарь
+    to_save = {
+        # из данных пользователя берем только def_a и def_b, остальное сессионные данные
+        uid: {k: v for k, v in data.items() if k in ('default_a', 'default_b')}
+        # перебор всех пользователей, поиск по айди
+        for uid, data in user_settings.items()
+    }
     with open(SETTINGS_FILE, "w") as f:
-        json.dump(user_settings, f, indent=4)
+        # записываем новый словарь в файл за место старого
+        json.dump(to_save, f, indent=4)
 
 # Загружаем настройки при запуске
 user_settings = load_settings()
@@ -81,7 +90,7 @@ MAX_INTERVAL = 1e4
 CANCEL_BUTTONS = [
     "🚪 На главную", "📊 Построить график", "ℹ️ Информация",
     "↕️ Найти Макс/Мин", "⚙️ Настройки",
-    ]
+]
 
 def is_cancelled(message):
     return message.text in CANCEL_BUTTONS
@@ -91,7 +100,6 @@ def menu():
     actions = types.ReplyKeyboardMarkup(resize_keyboard=True)
     actions.row(types.KeyboardButton("↕️ Найти Макс/Мин"), types.KeyboardButton("📊 Построить график"))
     actions.row(types.KeyboardButton("ℹ️ Информация"), types.KeyboardButton("⚙️ Настройки"))
-    actions.row(types.KeyboardButton("🚪 На главную"))
     return actions
 
 #3===ДОП МЕНЮ ДЛЯ ДИХОТОМИИ=============================================================================================
@@ -107,24 +115,11 @@ def menu_interval():
     actions.row(types.KeyboardButton("🚪 На главную"))
     return actions
 
-#4===СТАРТ, ВЫКИДЫВАЕТ ПАРУ ФОТО========================================================================================
-def send_picture_start(message):
-    try:
-        photo_path = os.path.join(pictures_dir, "src", "pictures", "DICHOTOMY.png")
-        with open(photo_path, "rb") as photo:
-            bot.send_photo(message.chat.id, photo, caption = f"👋 Приветствую вас, {message.from_user.first_name}, в <b>GraphBOT!</b>\n\n"
-                                                            f"Рекомендуем ознакомиться с синтаксисом ввода функции в пункте "
-                                                            f"ℹ️ Информация", parse_mode = 'HTML')
-    except Exception as e:
-        logger.error('Fatal error, command Start: ', e)
-
-#5===ПРОМЕЖУТОЧНОЕ МЕНЮ=================================================================================================
-
+#4===ПРОМЕЖУТОЧНОЕ МЕНЮ (только кнопка выхода)==========================================================================
 def menu_exit():
     actions = types.ReplyKeyboardMarkup(resize_keyboard=True)
     actions.row(types.KeyboardButton("🚪 На главную"))
-    return  actions
-
+    return actions
 
 #===ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ=============================================================================================
 
@@ -134,6 +129,25 @@ def get_default_range(chat_id):
     a = settings.get('default_a', DEFAULT_A)
     b = settings.get('default_b', DEFAULT_B)
     return a, b
+
+def get_user(chat_id):
+    # возвращает данные пользователя, создает запись если нет
+    chat_id = str(chat_id)
+    if chat_id not in user_settings:
+        user_settings[chat_id] = {}
+    return user_settings[chat_id]
+
+#===СТАРТ, ВЫКИДЫВАЕТ ПАРУ ФОТО=========================================================================================
+def send_picture_start(message):
+    try:
+        photo_path = os.path.join(pictures_dir, "src", "pictures", "DICHOTOMY.png")
+        with open(photo_path, "rb") as photo:
+            bot.send_photo(message.chat.id, photo,
+                           caption=f"👋 Приветствую вас, {message.from_user.first_name}, в <b>GraphBOT!</b>\n\n"
+                                   f"Рекомендуем ознакомиться с синтаксисом ввода функции в пункте "
+                                   f"ℹ️ Информация", parse_mode='HTML')
+    except Exception as e:
+        logger.error(f'Fatal error, command Start: {e}')
 
 #===ПУНКТ МЕНЮ "ИНФОРМАЦИЯ"=============================================================================================
 
@@ -151,42 +165,12 @@ def send_picture_examples(message):
         media = [InputMediaPhoto(open(os.path.join(examples_dir, f), "rb")) for f in files]
         media[0] = InputMediaPhoto(
             open(os.path.join(examples_dir, files[0]), "rb"),
-            caption="🤖 <b>GraphBOT</b> умеет <i>строить графики</i>, а также <i>находить "
-                    "минимум и максимум функции</i> на выбранном интервале!\n\n"
-                    "✍️ Примеры работы бота выше.\n\n"
-                    "<b>📖 Синтаксис:</b>\n\n"
-                    "<b>Переменная:</b>\n"
-                    "<code>x</code> или <code>X</code>\n\n"
-                    "<b>Операторы:</b>\n"
-                    "<code>+</code> - сложение\n"
-                    "<code>-</code> - вычитание\n"
-                    "<code>*</code> или <i>напр:</i> <code>2x</code>  - умножение\n"
-                    "<code>/</code> - деление\n"
-                    "<code>^</code> или <code>**</code> - степень\n\n"
-                    "<b>Функции:</b>\n"
-                    "<code>sin(x)</code> - синус\n"
-                    "<code>cos(x)</code> - косинус\n"
-                    "<code>tan(x)</code> - тангенс\n"
-                    "<code>exp(x)</code> - экспонента\n"
-                    "<code>logN(x)</code> - логарифм по основанию N\n"
-                    "<code>ln(x)</code> - натуральный логарифм\n"
-                    "<code>sqrt(x)</code> - квадратный корень\n"
-                    "<code>abs(x)</code> или <code>|x|</code> - модуль\n\n"
-                    "<b>Константы:</b>\n"
-                    "<code>pi</code>  число <i>π ≈ 3.14159</i>\n"
-                    "<code>e</code>   число <i>e ≈ 2.71828</i>\n\n"
-                    "<b>Примеры:</b>\n"
-                    "<code>sin(x) + cos(x)</code>\n"
-                    "<code>x^2 + 2x + 1</code>\n"
-                    "<code>sqrt(x) + ln(x)</code>\n"
-                    "<code>2sin(x)</code>\n\n"
-                    "🤓 <b>Создатель бота (📲 Обратная связь):</b> <b><i><a href='https://t.me/Cnstrct13'>>onemoretime</a></i></b> \n"
-                    "<b><i><a href='https://t.me/pritonoflizzaopium'>-TGC</a></i></b>",
+            caption=SYNTAX_INFO,
             parse_mode="HTML"
         )
         bot.send_media_group(message.chat.id, media)
     except Exception as e:
-        logger.error('Fatal error, command Information: ', e)
+        logger.error(f'Fatal error, command Information: {e}')
 
 #===ВЫХОД НА ГЛАВНУЮ====================================================================================================
 @bot.message_handler(func=lambda m: m.text == "🚪 На главную")
@@ -202,9 +186,9 @@ def send_welcome(message):
     send_picture_start(message)
     bot.send_message(message.chat.id, "🔎 С чего начнем?", reply_markup=menu())
     bot.delete_message(message.chat.id, message.message_id)
-    logger.info(f'Запуск бота | id: {message.from_user.id} | '
-                f'username: @{message.from_user.username} | '
-                f'имя: {message.from_user.first_name} {message.from_user.last_name} |')
+    # logger.info(f'Запуск бота | id: {message.from_user.id} | '
+    #             f'username: @{message.from_user.username} | '
+    #             f'имя: {message.from_user.first_name} {message.from_user.last_name} |')
 
 #===ПУНКТ МЕНЮ "ИНФОРМАЦИЯ"=============================================================================================
 @bot.message_handler(func=lambda m: m.text == "ℹ️ Информация")
@@ -214,7 +198,7 @@ def search(message):
 
 #===НАСТРОЙКИ===========================================================================================================
 
-@bot.message_handler(func = lambda m: m.text == "⚙️ Настройки")
+@bot.message_handler(func=lambda m: m.text == "⚙️ Настройки")
 def settings(message):
     a, b = get_default_range(message.chat.id)
     bot.send_message(message.chat.id,
@@ -223,7 +207,7 @@ def settings(message):
                      f'<code>a = {a}, b = {b}</code> \n \n'
                      f'При вводе нового диапазона в формате: <code>a b</code> текущий заменится; \n'
                      f'<i>Например:</i> <code>-20 20</code> \n',
-                     parse_mode = 'HTML', reply_markup=menu_exit())
+                     parse_mode='HTML', reply_markup=menu_exit())
     bot.register_next_step_handler(message, save_settings)
 
 def save_settings(message):
@@ -244,21 +228,15 @@ def save_settings(message):
             bot.register_next_step_handler(message, save_settings)
             return
 
-        # Сохранение в json файл информации о пользователе
-        chat_id = str(message.chat.id)
-
-        user_settings[chat_id] = {
-            'default_a': a,
-            'default_b': b
-        }
-
+        # сохраняем в единый словарь и пишем в json
+        get_user(message.chat.id).update({'default_a': a, 'default_b': b})
         save_settings_file()
 
         bot.send_message(message.chat.id,
                          f"✅ <b>Диапазон обновлён:</b> <code>[{a}; {b}]</code>",
                          parse_mode='HTML',
                          reply_markup=menu())
-        return  # ← явный выход, чтобы не проваливаться в except
+        return
 
     except ValueError:
         bot.send_message(message.chat.id,
@@ -266,12 +244,15 @@ def save_settings(message):
                          parse_mode='HTML')
         bot.register_next_step_handler(message, save_settings)
 
-
 #===САМЫЙ ЖИРНЫЙ БЛОК ДЛЯ ДИХОТОМИИ=====================================================================================
+
+'''
+Дихотомия, все функции берутся из graph.py, затем используются в боте для просчетов
+'''
 
 @bot.message_handler(func=lambda m: m.text == "↕️ Найти Макс/Мин")
 def ask_function(message):
-    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode='HTML', reply_markup = menu_exit())
+    bot.send_message(message.chat.id, "<i><b>[ƒ]</b></i> Введите функцию <i>f(x) = </i>", parse_mode='HTML', reply_markup=menu_exit())
     bot.register_next_step_handler(message, ask_a)
 
 def ask_a(message):
@@ -283,15 +264,16 @@ def ask_a(message):
         bot.send_message(message.chat.id, "❌ <b>Синтаксическая ошибка!</b> Попробуйте еще раз", parse_mode='HTML')
         logger.error(f'Ошибка при построении | id: {message.from_user.id} | '
                      f'username: @{message.from_user.username} | '
-                     f'f(x) = {func_raw} ')
+                     f'f(x) = {func_raw}')
         bot.register_next_step_handler(message, ask_a)
         bot.delete_message(message.chat.id, message.message_id)
         return
 
     func = parse(func_raw)
-    user_data[message.chat.id] = {'func': func, 'func_raw': func_raw}
 
-    # сохраняет функцию и спрашивает отрезок
+    # сохраняем функцию в единый словарь
+    get_user(message.chat.id).update({'func': func, 'func_raw': func_raw})
+
     a, b = get_default_range(message.chat.id)
     bot.send_message(message.chat.id,
                      f"📐 Выберите отрезок:\n"
@@ -300,19 +282,18 @@ def ask_a(message):
                      reply_markup=menu_interval())
     bot.register_next_step_handler(message, handle_interval_choice_dichotomy)
 
-# Обработка выбора отрезка
+# Обработка выбора отрезка для дихотомии
 def handle_interval_choice_dichotomy(message):
-    data = user_data.get(message.chat.id, {})
+    data = user_settings.get(str(message.chat.id), {})
     func = data.get('func')
 
     if message.text == "✍️ Использовать текущий":
         a, b = get_default_range(message.chat.id)
-        user_data[message.chat.id].update({'a': a, 'b': b})
+        get_user(message.chat.id).update({'a': a, 'b': b})
         graph_module.func = func
         bot.send_message(message.chat.id, "✍️ Что ищем?", reply_markup=menu_graph())
 
     elif message.text == "📐 Ввести отрезок":
-        # [ИЗМЕНЕНО] просим оба числа в одну строку
         bot.send_message(message.chat.id,
                          "<i><b>[ƒ]</b></i> Введите отрезок в формате <code>a b</code>\n"
                          "<i>Например:</i> <code>-20 20</code>",
@@ -350,17 +331,17 @@ def calculate(message, func):
         bot.register_next_step_handler(message, calculate, func)
         return
 
-    user_data[message.chat.id] = {'func': func, 'a': a, 'b': b}
+    get_user(message.chat.id).update({'func': func, 'a': a, 'b': b})
     graph_module.func = func
     bot.send_message(message.chat.id, "✍️ Что ищем?", reply_markup=menu_graph())
 
 # Для кнопки МАКСИМУМ
 @bot.message_handler(func=lambda m: m.text == "⬆️ Максимум")
 def handle_max(message):
-    data = user_data.get(message.chat.id)
+    data = user_settings.get(str(message.chat.id))
     # Проверка на всякий, а вдруг пользователь решит ввести сообщение до ввода данных
-    if not data:
-        bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Введите функцию и отрезок", parse_mode = 'HTML')
+    if not data or 'func' not in data:
+        bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Введите функцию и отрезок", parse_mode='HTML')
         bot.delete_message(message.chat.id, message.message_id)
         return
 
@@ -371,11 +352,11 @@ def handle_max(message):
 
     # Лог для построения графика
     logger.info(f'График (максимум) | id: {message.from_user.id} | username: @{message.from_user.username} | '
-                f'f(x) = {data['func']} | отрезок: [{data['a']}]; [{data['b']}] | результат: {result_text}')
+                f'f(x) = {data["func"]} | отрезок: [{data["a"]}]; [{data["b"]}] | результат: {result_text}')
 
     if PATH:
         with open(PATH, "rb") as photo:
-            bot.send_photo(message.chat.id, photo, caption=f'📊 <b><code>{result_text}</code></b>', parse_mode = 'HTML')
+            bot.send_photo(message.chat.id, photo, caption=f'📊 <b><code>{result_text}</code></b>', parse_mode='HTML')
     else:
         bot.send_message(message.chat.id, result_text)
 
@@ -385,9 +366,9 @@ def handle_max(message):
 # Все то же самое для МИНИМУМА
 @bot.message_handler(func=lambda m: m.text == "⬇️ Минимум")
 def handle_min(message):
-    data = user_data.get(message.chat.id)
-    if not data:
-        bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Введите функцию и отрезок", parse_mode = 'HTML')
+    data = user_settings.get(str(message.chat.id))
+    if not data or 'func' not in data:
+        bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Введите функцию и отрезок", parse_mode='HTML')
         bot.delete_message(message.chat.id, message.message_id)
         return
 
@@ -397,11 +378,11 @@ def handle_min(message):
 
     # Лог для построения графика
     logger.info(f'График (минимум) | id: {message.from_user.id} | username: @{message.from_user.username} | '
-                f'f(x) = {data['func']} | отрезок: [{data['a']}]; [{data['b']}] | результат: {result_text}')
+                f'f(x) = {data["func"]} | отрезок: [{data["a"]}]; [{data["b"]}] | результат: {result_text}')
 
     if PATH:
         with open(PATH, "rb") as photo:
-            bot.send_photo(message.chat.id, photo, caption=f'📊 <b><code>{result_text}</code></b>', parse_mode = 'HTML')
+            bot.send_photo(message.chat.id, photo, caption=f'📊 <b><code>{result_text}</code></b>', parse_mode='HTML')
     else:
         bot.send_message(message.chat.id, result_text)
 
@@ -432,7 +413,7 @@ def get_simple_function(message):
     func = parse(func_raw)
 
     # сохраняем функцию и предлагаем выбрать диапазон
-    user_data[message.chat.id] = {'func': func, 'func_raw': func_raw}
+    get_user(message.chat.id).update({'func': func, 'func_raw': func_raw})
     a, b = get_default_range(message.chat.id)
     bot.send_message(message.chat.id,
                      f"📐 Выберите диапазон:\n"
@@ -442,7 +423,7 @@ def get_simple_function(message):
 
 @bot.message_handler(func=lambda m: m.text == "✍️ Использовать текущий")
 def use_default_interval(message):
-    data = user_data.get(message.chat.id)
+    data = user_settings.get(str(message.chat.id))
     if not data or 'func' not in data:
         bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Сначала введите функцию", parse_mode='HTML')
         return
@@ -452,7 +433,7 @@ def use_default_interval(message):
 
 @bot.message_handler(func=lambda m: m.text == "📐 Ввести отрезок")
 def ask_simple_a(message):
-    data = user_data.get(message.chat.id)
+    data = user_settings.get(str(message.chat.id))
     if not data or 'func' not in data:
         bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Сначала введите функцию", parse_mode='HTML')
         return
@@ -487,7 +468,7 @@ def get_simple_b(message):
         bot.register_next_step_handler(message, get_simple_b)
         return
 
-    data = user_data.get(message.chat.id, {})
+    data = user_settings.get(str(message.chat.id), {})
     build_simple_graph(message, data.get('func'), data.get('func_raw'), a, b)
 
 def build_simple_graph(message, func, func_raw, a, b):
@@ -504,6 +485,9 @@ def build_simple_graph(message, func, func_raw, a, b):
                            parse_mode="HTML")
     else:
         bot.send_message(message.chat.id, '❌ График не был построен')
+        logger.error(f'Ошибка при построении | id: {message.from_user.id} | '
+                     f'username: @{message.from_user.username} | '
+                     f'f(x) = {func_raw}')
 
     bot.send_message(message.chat.id, "🔎 Чем займемся теперь?", reply_markup=menu())
 

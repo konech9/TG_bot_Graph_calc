@@ -1,9 +1,0 @@
-{
-    "1633373556": {
-        "state": "none",
-        "func": "x**3",
-        "func_raw": "x^3",
-        "default_a": -20,
-        "default_b": 20
-    }
-}
