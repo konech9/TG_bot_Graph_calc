@@ -199,3 +199,6 @@ a должно быть меньше b
 2026-03-09 14:47:21,841 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**90 | отрезок: [0.0; 199.0]
 2026-03-09 14:54:28,398 [ERROR] Fatal error, command Information: Object of type module is not JSON serializable
 2026-03-09 15:01:37,068 [INFO] Запуск бота | id: 1633373556 | username: @Cnstrct13 | имя: >onemoretime None |
+2026-03-09 15:25:49,963 [INFO] График (минимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x)**log(2) | отрезок: [0.0]; [100.0] | результат: f(x_min) = 0.0, x_min = 12.5664
+2026-03-09 15:26:15,201 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 | отрезок: [30.0; 20.0]
+2026-03-09 15:26:44,943 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 | отрезок: [20.0; 30.0]
