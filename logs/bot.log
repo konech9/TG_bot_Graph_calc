@@ -202,3 +202,112 @@ a должно быть меньше b
 2026-03-09 15:25:49,963 [INFO] График (минимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(x)**log(2) | отрезок: [0.0]; [100.0] | результат: f(x_min) = 0.0, x_min = 12.5664
 2026-03-09 15:26:15,201 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 | отрезок: [30.0; 20.0]
 2026-03-09 15:26:44,943 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 | отрезок: [20.0; 30.0]
+2026-03-09 15:56:20,305 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 + x%2 | отрезок: [0.0; 100.0]
+2026-03-09 15:56:34,457 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x%3 | отрезок: [0.0; 100.0]
+2026-03-09 15:56:53,636 [ERROR] Ошибка при построении | id: 1633373556 | username: @Cnstrct13 | f(x) = mod(x)
+2026-03-09 15:57:00,390 [ERROR] Ошибка при построении | id: 1633373556 | username: @Cnstrct13 | f(x) = prinv
+2026-03-09 15:57:20,210 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 + sqrt(x**3) | отрезок: [0.0; 100.0]
+2026-03-09 15:59:39,228 [INFO] График | id: 1073024503 | username: @Julia119Malina | f(x) = x**3-sqrt(x**3) | отрезок: [-5.0; 5.0]
+2026-03-09 21:11:28,415 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**32 | отрезок: [-20.0; 20.0]
+2026-03-09 21:11:47,413 [ERROR] Ошибка при построении | id: 5845622762 | username: @username88882222 | f(x) = x4
+2026-03-09 21:11:49,646 [INFO] График (максимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = x**sin(x) | отрезок: [-20.0]; [20.0] | результат: f(x_max) = 15.4088, x_max = 20.0
+2026-03-09 21:11:57,836 [ERROR] Ошибка при построении | id: 5845622762 | username: @username88882222 | f(x) = 4
+2026-03-09 21:12:22,521 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**sin(x) | отрезок: [0.0; 100.0]
+2026-03-09 21:12:36,545 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**132 | отрезок: [-20.0; 20.0]
+2026-03-09 21:12:54,346 [INFO] График (минимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = x**sin(x) | отрезок: [-20.0]; [20.0] | результат: f(x_min) = 0.0578, x_min = 17.299
+2026-03-09 21:14:40,416 [ERROR] Ошибка при построении | id: 1633373556 | username: @Cnstrct13 | f(x) = 4
+2026-03-09 21:15:32,012 [ERROR] Ошибка при построении | id: 5845622762 | username: @username88882222 | f(x) = /start
+2026-03-09 21:16:33,451 [ERROR] Ошибка при построении | id: 5845622762 | username: @username88882222 | f(x) = /start
+2026-03-09 21:20:13,046 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = pi | отрезок: [-20.0; 20.0]
+2026-03-10 23:20:00,729 [ERROR] Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: can't parse entities: Unmatched end tag at byte offset 10, expected "</i>", found "</b>"
+2026-03-10 23:20:00,731 [ERROR] Exception traceback:
+Traceback (most recent call last):
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\__init__.py", line 1235, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\util.py", line 154, in raise_exceptions
+    raise self.exception_info
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\util.py", line 97, in run
+    task(*args, **kwargs)
+    ~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\__init__.py", line 10134, in _run_middlewares_and_handler
+    result = handler['function'](message)
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\bot.py", line 510, in ask_parametr_function
+    bot.send_message(message.chat.id, f"<b><i>[ƒ]</b></i> Введите функцию <i>f(x, a)</i>", parse_mode='HTML', reply_markup=menu_exit())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\__init__.py", line 1811, in send_message
+    apihelper.send_message(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        self.token, chat_id, text,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        suggested_post_parameters=suggested_post_parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\apihelper.py", line 282, in send_message
+    return _make_request(token, method_url, params=payload, method='post')
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\apihelper.py", line 168, in _make_request
+    json_result = _check_result(method_name, result)
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\apihelper.py", line 197, in _check_result
+    raise ApiTelegramException(method_name, result, result_json)
+telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: can't parse entities: Unmatched end tag at byte offset 10, expected "</i>", found "</b>"
+
+2026-03-10 23:27:36,369 [ERROR] Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: can't parse entities: Unmatched end tag at byte offset 10, expected "</i>", found "</b>"
+2026-03-10 23:27:36,370 [ERROR] Exception traceback:
+Traceback (most recent call last):
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\__init__.py", line 1235, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\util.py", line 154, in raise_exceptions
+    raise self.exception_info
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\util.py", line 97, in run
+    task(*args, **kwargs)
+    ~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\__init__.py", line 10134, in _run_middlewares_and_handler
+    result = handler['function'](message)
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\bot.py", line 509, in ask_parameter_function
+    bot.send_message(message.chat.id, "<b><i>[ƒ]</b></i> Введите функцию <i>f(x, a)</i>", parse_mode='HTML', reply_markup=menu_exit())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\__init__.py", line 1811, in send_message
+    apihelper.send_message(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        self.token, chat_id, text,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        suggested_post_parameters=suggested_post_parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\apihelper.py", line 282, in send_message
+    return _make_request(token, method_url, params=payload, method='post')
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\apihelper.py", line 168, in _make_request
+    json_result = _check_result(method_name, result)
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\apihelper.py", line 197, in _check_result
+    raise ApiTelegramException(method_name, result, result_json)
+telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: can't parse entities: Unmatched end tag at byte offset 10, expected "</i>", found "</b>"
+
+2026-03-10 23:28:53,537 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['a*x^2'] | отрезок: [-20.0; 20.0]
+2026-03-10 23:30:44,752 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x*a^2', 'sin(a*x)'] | отрезок: [-20.0; 20.0]
+2026-03-10 23:32:13,773 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['sin(a*x)'] | отрезок: [-20.0; 20.0]
+2026-03-10 23:32:54,545 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['a*x^2', 'sin(a*x)'] | отрезок: [-20.0; 20.0]
+2026-03-10 23:34:47,784 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['a*x^2', 'sin(a*x)'] | отрезок: [-20.0; 20.0]
+2026-03-10 23:40:40,059 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = sin(a*x) | отрезок: [-20.0; 20.0]
+2026-03-10 23:48:23,536 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 | отрезок: [-20.0; 20.0]
+2026-03-10 23:48:40,286 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a'] | отрезок: [0.0; 10.0]
+2026-03-10 23:49:38,833 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a'] | отрезок: [-20.0; 20.0]
+2026-03-10 23:57:11,599 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['|x|+|a^3|', 'x^2 + a^3 - sin(a)'] | отрезок: [-20.0; 20.0]
+2026-03-11 00:00:01,440 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x'] | отрезок: [-20.0; 20.0]
+2026-03-11 00:01:02,806 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x+2', 'x-2', 'x**2'] | отрезок: [-20.0; 20.0]
+2026-03-11 00:04:18,978 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a'] | отрезок: [-20.0; 20.0]
+2026-03-11 00:04:42,659 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a'] | отрезок: [-20.0; 20.0]
+2026-03-11 00:09:44,554 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:09:50,624 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:10:22,872 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:10:30,463 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:11:11,347 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:12:03,383 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:12:17,455 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:13:08,400 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:14:16,539 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:17:51,076 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long

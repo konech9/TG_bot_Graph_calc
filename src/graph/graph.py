@@ -63,8 +63,8 @@ def function(x):
 def validate(expression):
     try:
         parsed = parse(expression)
-        result = eval(parsed.lower(), get_dict(1.0, parsed))
-        if not isinstance(result, (int, float, np.floating)) or ('x' not in str(parsed).lower()):
+        result = eval(parsed.lower(), get_dict(1.0, parsed) | {'a':1.0})
+        if not isinstance(result, (int, float, np.floating)):
             return False
         return True
     except:
@@ -229,6 +229,7 @@ def graph(i, func, a, b, save_dir='./imgs'):
 
     x = np.linspace(a, b, 1000)
     y = compute_y(x)
+    y = apply_iqr_clip(y)
 
     # создание фигуры и оси
     fig, ax = plt.subplots()
@@ -243,12 +244,6 @@ def graph(i, func, a, b, save_dir='./imgs'):
     ax.set_ylabel('y')
     ax.set_xlim(a, b)
 
-    # # Смотрим насколько большое значение у фунукции и чуть корректирует масштаб
-    # finite_y = y[np.isfinite(y)]
-    # if len(finite_y) > 0:
-    #     half = (b - a) / 2
-    #     ax.set_ylim(function(c) - half, function(c) + half)
-
     # в случае если папки не будет, эта штука создаст папку сама с назв. imgs
     os.makedirs(save_dir, exist_ok=True)
     path = os.path.join(save_dir, f'{i}.png')
@@ -256,10 +251,23 @@ def graph(i, func, a, b, save_dir='./imgs'):
     plt.close()
     return path
 
+# Регулировка масштаба (IQR)
+def apply_iqr_clip(y):
+    # обрезаем выбросы по IQR — данные не теряем, просто масштаб становится адекватным
+    finite_y = y[np.isfinite(y)]
+    if len(finite_y) == 0:
+        return y
+    q1, q3 = np.percentile(finite_y, 25), np.percentile(finite_y, 75)
+    iqr = q3 - q1
+    if iqr > 0:
+        y = np.clip(y, q1 - 3 * iqr, q3 + 3 * iqr)
+    return y
+
 # простой график, построение без макс/мин
 def simple_graph(i, func, a, b, save_dir='./imgs'):
     x = np.linspace(a, b, 1000)
     y = compute_y(x)
+    y = apply_iqr_clip(y)
 
     # создание фигуры и оси
     fig, ax = plt.subplots()
@@ -271,15 +279,72 @@ def simple_graph(i, func, a, b, save_dir='./imgs'):
     ax.set_ylabel('y')
     ax.set_xlim(a, b)
 
-    # # Смотрим насколько большое значение у фунукции и чуть корректирует масштаб
-    # finite_y = y[np.isfinite(y)]
-    # if len(finite_y) > 0:
-    #     y_center = np.median(finite_y)
-    #     half = (b - a) / 2
-    #     ax.set_ylim(y_center - half, y_center + half)
-
     os.makedirs(save_dir, exist_ok=True)
     path = os.path.join(save_dir, f'{i}.png')
+    plt.savefig(path)
+    plt.close()
+    return path
+
+'''
+График с параметром, принимает несколько функций
+'''
+
+def parameter_graph(i, functions, x_a, x_b, save_dir='./imgs'):
+
+    global func
+
+    x = np.linspace(x_a, x_b, 1000)
+
+    # фигура + оси
+    fig, ax = plt.subplots()
+    # построение осей через ноль
+    build_axes(ax)
+
+    # для каждой функции свой цвет (всего 10 цветов, можно больше при желании)
+    colors = plt.cm.tab10.colors
+    # счетчик цветов, каждый раз обновляется после построения функции для смены цвета
+    color_index = 0
+
+    for fn_data in functions: # для каждой функции из списка: строка=функция, список значений параметра
+        fn = fn_data['func']
+        params = fn_data['params']
+        func = fn
+
+        for a_val in params: # рассматриваем каждое значение для параметра a
+            y = []
+
+            for xi in x: # для каждого x
+                try:
+                    d = get_dict(xi, fn) # словарь для обработки функции
+                    # проверка на условие существования значения параметра и вычисления значений функции
+                    if a_val is not None:
+                        d['a'] = a_val
+                    result = eval(fn, d)
+                    y.append(float(np.real(result))) # np.real отсекает невещественную часть
+                except:
+                    y.append(np.nan)
+
+            y = np.array(y, dtype=float)
+            y = apply_iqr_clip(y)
+
+            # подписи для графиков (каждого параметра)
+            if a_val is not None:
+                label = f'f(x, {a_val})'
+            else:
+                label = 'f'
+
+            ax.plot(x, y, label=label, color=colors[color_index % len(colors)])
+            color_index += 1
+
+    # легенда + ограничение оси x переданным отрезком
+    ax.set_xlim(x_a, x_b)
+    ax.legend(fontsize = 8)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+
+    # сохранение файла
+    os.makedirs(save_dir, exist_ok=True)
+    path = os.path.join(save_dir, f'{i}_parametr.png')
     plt.savefig(path)
     plt.close()
     return path
