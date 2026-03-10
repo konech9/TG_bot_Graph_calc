@@ -311,3 +311,4 @@ telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsucc
 2026-03-11 00:13:08,400 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
 2026-03-11 00:14:16,539 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
 2026-03-11 00:17:51,076 [ERROR] Fatal error, command Information: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message caption is too long
+2026-03-11 00:27:36,357 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x+a', 'x-a'] | отрезок: [-20.0; 20.0]

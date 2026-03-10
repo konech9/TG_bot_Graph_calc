@@ -30,7 +30,12 @@ warnings.filterwarnings('ignore')
 load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN")
+
+if not TOKEN:
+    raise ValueError("BOT_TOKEN not set")
+
 bot = telebot.TeleBot(TOKEN)
+
 
 # Директория для картинок
 pictures_dir = os.path.dirname(os.path.abspath(__file__))
