@@ -10,7 +10,7 @@ import src.graph.graph as graph_module
 from logger import logger
 import json
 from messages.bot_syntax_info import SYNTAX_INFO
-from src.bot.actions import menu, menu_graph, menu_interval, menu_exit, parameter_menu, is_cancelled
+from src.bot.actions import menu, menu_graph, menu_interval, menu_exit, parameter_menu, is_cancelled, menu_settings, menu_color_mode
 
 #===УСЛОВНЫЙ SETUP======================================================================================================
 
@@ -52,6 +52,8 @@ pictures_dir = os.path.dirname(os.path.abspath(__file__))
         "func_raw": "[func_raw]",   <= только в памяти (сессионное)
         "a": [a],               <= только в памяти (сессионное)
         "b": [b]                 <= только в памяти (сессионное)
+        + функции с параметром (сессионное)
+        + цвет построения (сессионное, но лучше сделать постоянным)
     }
 }
 '''
@@ -77,7 +79,7 @@ def save_settings_file():
         for uid, data in user_settings.items()
     }
     with open(SETTINGS_FILE, "w") as f:
-        # записываем новый словарь в файл за место старого
+        # записываем новый словарь в файл вместо старого
         json.dump(to_save, f, indent=4)
 
 # Загружаем настройки при запуске
@@ -91,6 +93,10 @@ DEFAULT_B = 20
 MAX_INTERVAL = 1e4
 
 #===ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ=============================================================================================
+def get_color_mode(chat_id):
+    # by_parameter - одинаковый цвет на каждое значение параметра
+    # all_different - на каждый график свой индивидуальный цвет
+    return user_settings.get(str(chat_id), {}).get('color_mode', 'all_different')
 
 def get_default_range(chat_id):
     chat_id = str(chat_id)
@@ -150,7 +156,6 @@ def main_tab(message):
     bot.delete_message(message.chat.id, message.message_id)
 
 #===ПОМОЩЬ==============================================================================================================
-
 @bot.message_handler(commands=['help'])
 def help(message):
     search(message)
@@ -176,15 +181,28 @@ def search(message):
 @bot.message_handler(func=lambda m: m.text == "⚙️ Настройки")
 def settings(message):
     a, b = get_default_range(message.chat.id)
+    color_mode = get_color_mode(message.chat.id)
+    color_label = "По значению параметра" if color_mode == "by_parameter" else "Все разные"
+
     bot.send_message(message.chat.id,
-                     f'⚙️ <b>Настройки</b> \n \n'
-                     f'<i>Текущий диапазон для построения графика: </i>\n'
-                     f'<code>a = {a}, b = {b}</code> \n \n'
-                     f'При вводе нового диапазона в формате: <code>a b</code> текущий заменится; \n'
-                     f'<i>Например:</i> <code>-20 20</code> \n',
+                     f'⚙️ <b>Настройки</b>\n\n'
+                     f'<i>Текущий диапазон построения:</i> <code>[{a}; {b}]</code>\n'
+                     f'<i>Настройка цвета графика:</i> <code>{color_label}</code>\n\n',
+                     parse_mode='HTML', reply_markup=menu_settings())
+
+# изменение диапазона
+@bot.message_handler(func = lambda m: m.text == "📏 Диапазон")
+def settings_range(message):
+    a, b = get_default_range(message.chat.id)
+    bot.send_message(message.chat.id,
+                     f'📐 <b>Диапазон построения</b>\n\n'
+                     f'<i>Текущий:</i> <code>[{a}; {b}]</code>\n\n'
+                     f'Введите новый в формате <code>a b</code>\n'
+                     f'<i>Например:</i> <code>-20 20</code>',
                      parse_mode='HTML', reply_markup=menu_exit())
     bot.register_next_step_handler(message, save_settings)
 
+# сохранение диапазона a-b
 def save_settings(message):
     if is_cancelled(message):
         main_tab(message)
@@ -218,6 +236,34 @@ def save_settings(message):
                          "❌ <b>Неверный формат!</b> Введите два числа через пробел \n <i>Например:</i> <code>-20 20</code>",
                          parse_mode='HTML')
         bot.register_next_step_handler(message, save_settings)
+
+# изменение режима цвета
+@bot.message_handler(func=lambda m: m.text == "🎨 Цвет графика")
+def settings_color(message):
+    color_mode = get_color_mode(message.chat.id)
+    color_label = "по значению параметра" if color_mode == 'by_param' else "все разные"
+
+    bot.send_message(message.chat.id,
+                     f'🎨 <b>Цвет построения графиков</b>\n\n'
+                     f'<i>Текущий режим:</i> {color_label}\n\n',
+                     parse_mode='HTML', reply_markup=menu_color_mode())
+
+@bot.message_handler(func=lambda m: m.text == "🖍️ По значению параметра")
+def set_color_by_param(message):
+    get_user(message.chat.id).update({'color_mode': 'by_parameter'})
+    save_settings_file()
+    bot.send_message(message.chat.id,
+                     "✅ Режим: <b>по значению параметра</b>",
+                     parse_mode='HTML', reply_markup=menu())
+
+@bot.message_handler(func=lambda m: m.text == "🌈 Все разные")
+def set_color_all_different(message):
+    get_user(message.chat.id).update({'color_mode': 'all_different'})
+    save_settings_file()
+    bot.send_message(message.chat.id,
+                     "✅ Режим: <b>все разные</b>",
+                     parse_mode='HTML', reply_markup=menu())
+
 
 #===САМЫЙ ЖИРНЫЙ БЛОК ДЛЯ ДИХОТОМИИ=====================================================================================
 
@@ -546,6 +592,7 @@ def get_parameter_interval_manual(message):
     func_raw = user_settings.get(str(message.chat.id), {}).get('current_parameter_func_raw', '')
     ask_parameter_values_msg(message, func_raw)
 
+# получение значений параметра
 def ask_parameter_values_msg(message, func_raw):
     if 'a' in func_raw:
         bot.send_message(message.chat.id,
@@ -560,12 +607,13 @@ def ask_parameter_values_msg(message, func_raw):
         data['parameter_functions'].append({'func': func, 'func_raw': func_raw, 'params': [None]})
         offer_parameter_add_more(message)
 
+# проверка значений параметра
 def get_parameter_values(message):
     if is_cancelled(message):
         main_tab(message)
         return
     try:
-        params = [float(p) for p in message.text.split()]
+        params = list(set([float(p) for p in message.text.split()]))
         if not params:
             raise ValueError
     except ValueError:
@@ -586,6 +634,7 @@ def offer_parameter_add_more(message):
     data = user_settings.get(str(message.chat.id), {})
     functions = data.get('parameter_functions', [])
 
+    # подписи
     lines = []
     for fn in functions:
         if fn['params'] == [None]:
@@ -612,7 +661,7 @@ def build_parameter_graph_handler(message):
         bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Сначала добавьте функции", parse_mode='HTML')
         return
 
-    PATH = parameter_graph(message.from_user.id, functions, a, b, GRAPHS_DIR)
+    PATH = parameter_graph(get_color_mode(message.chat.id), message.from_user.id, functions, a, b, GRAPHS_DIR)
 
     lines = []
     for fn in functions:

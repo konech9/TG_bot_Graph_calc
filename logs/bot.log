@@ -1,0 +1,49 @@
+2026-03-11 22:53:11,195 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a'] | отрезок: [-20.0; 20.0]
+2026-03-11 23:05:47,816 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['((a+x)^2)^(1/3) + 4*((a-x)^2)^(1/3)', '5*((a^2-x^2))^(1/3)'] | отрезок: [-20.0; 20.0]
+2026-03-11 23:15:59,597 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a'] | отрезок: [-20.0; 20.0]
+2026-03-11 23:17:59,924 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a'] | отрезок: [-20.0; 20.0]
+2026-03-11 23:18:57,662 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['((a+x)^2)^(1/3) + 4*((a-x)^2)^(1/3)', '5*((a^2-x^2))^(1/3)'] | отрезок: [-20.0; 20.0]
+2026-03-11 23:26:08,565 [ERROR] Fatal error, command Start: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+2026-03-11 23:26:43,578 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^7', 'x^(7+a)'] | отрезок: [-20.0; 20.0]
+2026-03-11 23:27:19,905 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^99999', 'x^a'] | отрезок: [-20.0; 20.0]
+2026-03-11 23:27:52,179 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**99999 | отрезок: [-20.0; 20.0]
+2026-03-11 23:28:23,818 [INFO] График | id: 1633373556 | username: @Cnstrct13 | f(x) = x**99999 | отрезок: [-20.0; 20.0]
+2026-03-11 23:30:07,377 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a'] | отрезок: [-20.0; 20.0]
+2026-03-12 00:06:39,447 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a', 'x^(a-1)'] | отрезок: [-10.0; 20.0]
+2026-03-12 00:07:27,052 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a', 'x^(a-1)'] | отрезок: [-10.0; 20.0]
+2026-03-12 00:13:34,305 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a'] | отрезок: [0.0; 100.0]
+2026-03-12 00:15:21,373 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a', 'x+a'] | отрезок: [-10.0; 20.0]
+2026-03-12 00:20:41,488 [ERROR] Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message text is empty
+2026-03-12 00:20:41,489 [ERROR] Exception traceback:
+Traceback (most recent call last):
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\__init__.py", line 1235, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\util.py", line 154, in raise_exceptions
+    raise self.exception_info
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\util.py", line 97, in run
+    task(*args, **kwargs)
+    ~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\__init__.py", line 10134, in _run_middlewares_and_handler
+    result = handler['function'](message)
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\bot.py", line 161, in menu_command
+    bot.send_message(message.chat.id,'', reply_markup=menu())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\__init__.py", line 1811, in send_message
+    apihelper.send_message(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        self.token, chat_id, text,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        suggested_post_parameters=suggested_post_parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\apihelper.py", line 282, in send_message
+    return _make_request(token, method_url, params=payload, method='post')
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\apihelper.py", line 168, in _make_request
+    json_result = _check_result(method_name, result)
+  File "C:\Users\pleha\OneDrive\Документы\GitHub\TG_bot_Graph_calc\.venv\Lib\site-packages\telebot\apihelper.py", line 197, in _check_result
+    raise ApiTelegramException(method_name, result, result_json)
+telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message text is empty
+

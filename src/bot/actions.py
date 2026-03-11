@@ -45,3 +45,19 @@ def parameter_menu():
     actions.row(types.KeyboardButton("➕ Добавить функцию"), types.KeyboardButton("📊 Построить"))
     actions.row(types.KeyboardButton("🚪 На главную"))
     return actions
+
+#7===ВКЛАДКИ НАСТРОЕК===================================================================================================
+def menu_settings():
+    actions = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    actions.row(types.KeyboardButton("📏 Диапазон"))
+    actions.row(types.KeyboardButton("🎨 Цвет графика"))
+    actions.row(types.KeyboardButton("🚪 На главную"))
+    return actions
+
+#7===РЕЖИМ ЦВЕТА========================================================================================================
+def menu_color_mode():
+    actions = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    actions.row(types.KeyboardButton("🖍️ По значению параметра"), types.KeyboardButton("🌈 Все разные"))
+    actions.row("🚪 На главную")
+    return actions
+

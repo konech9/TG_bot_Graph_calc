@@ -289,7 +289,7 @@ def simple_graph(i, func, a, b, save_dir='./imgs'):
 График с параметром, принимает несколько функций
 '''
 
-def parameter_graph(i, functions, x_a, x_b, save_dir='./imgs'):
+def parameter_graph(color_mode, i, functions, x_a, x_b, save_dir='./imgs'):
 
     global func
 
@@ -300,10 +300,21 @@ def parameter_graph(i, functions, x_a, x_b, save_dir='./imgs'):
     # построение осей через ноль
     build_axes(ax)
 
-    # для каждой функции свой цвет (всего 10 цветов, можно больше при желании)
-    colors = plt.cm.tab10.colors
+    # 10 цветов для построения
+    palette = plt.cm.tab10.colors
     # счетчик цветов, каждый раз обновляется после построения функции для смены цвета
     color_index = 0
+    if color_mode == 'by_parameter':
+        # для каждого значения параметра свой цвет
+        all_params = []
+        for fn_data in functions:
+            for a_val in fn_data['params']:
+                if a_val not in all_params:
+                    all_params.append(a_val)
+        colors = {a_val: palette[i % len(palette)] for i, a_val in enumerate(all_params)}
+    else:
+        color_index = 0
+
 
     for fn_data in functions: # для каждой функции из списка: строка=функция, список значений параметра
         fn = fn_data['func']
@@ -333,7 +344,12 @@ def parameter_graph(i, functions, x_a, x_b, save_dir='./imgs'):
             else:
                 label = 'f'
 
-            ax.plot(x, y, label=label, color=colors[color_index % len(colors)])
+            if color_mode == 'by_parameter':
+                color = colors[a_val]
+            else:
+                color = palette[color_index % len(palette)]
+
+            ax.plot(x, y, label=label, color=color)
             color_index += 1
 
     # легенда + ограничение оси x переданным отрезком
@@ -344,7 +360,7 @@ def parameter_graph(i, functions, x_a, x_b, save_dir='./imgs'):
 
     # сохранение файла
     os.makedirs(save_dir, exist_ok=True)
-    path = os.path.join(save_dir, f'{i}_parametr.png')
+    path = os.path.join(save_dir, f'{i}_parameter.png')
     plt.savefig(path)
     plt.close()
     return path
