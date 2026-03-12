@@ -11,6 +11,7 @@ from logger import logger
 import json
 from messages.bot_syntax_info import SYNTAX_INFO
 from src.bot.actions import menu, menu_graph, menu_interval, menu_exit, parameter_menu, is_cancelled, menu_settings, menu_color_mode
+import threading
 
 #===УСЛОВНЫЙ SETUP======================================================================================================
 
@@ -74,7 +75,7 @@ def save_settings_file():
     # сохраняем только постоянные настройки, без сессионных данных, перезаписываем словарь
     to_save = {
         # из данных пользователя берем только def_a и def_b, остальное сессионные данные
-        uid: {k: v for k, v in data.items() if k in ('default_a', 'default_b')}
+        uid: {k: v for k, v in data.items() if k in ('default_a', 'default_b', 'color_mode')}
         # перебор всех пользователей, поиск по айди
         for uid, data in user_settings.items()
     }
@@ -93,11 +94,37 @@ DEFAULT_B = 20
 MAX_INTERVAL = 1e4
 
 #===ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ=============================================================================================
+# ограничение по времени просчета
+def run_with_timeout(fn, args=(), timeout = 15):
+    '''
+    Функция просчитывает fn(*args) в отдельном потоке,
+    если функция не завершится за 15 секунд, вернет - None
+    '''
+    result = [None]
+
+    def target():
+        result[0] = fn(*args)
+
+    thread = threading.Thread(target=target)
+    thread.start()
+    thread.join(timeout)
+
+    if thread.is_alive():
+        return None # если выполнение не кончилось за отведенное время
+    return result[0]
+
+# ошибка при долгом просчете
+def timeout_error(message):
+    bot.send_message(message.chat.id, '❌ <b>Превышено время просчета!</b> Попробуйте упростить вводимые данные', parse_mode='HTML')
+    bot.send_message(message.chat.id, '🔎 Чем займемся теперь?', reply_markup=menu())
+
+# получает настройку цвета из настройки пользователя
 def get_color_mode(chat_id):
     # by_parameter - одинаковый цвет на каждое значение параметра
     # all_different - на каждый график свой индивидуальный цвет
     return user_settings.get(str(chat_id), {}).get('color_mode', 'all_different')
 
+# получает промежуток из настройки пользователя
 def get_default_range(chat_id):
     chat_id = str(chat_id)
     settings = user_settings.get(chat_id, {})
@@ -360,18 +387,30 @@ def calculate(message, func):
 @bot.message_handler(func=lambda m: m.text == "⬆️ Максимум")
 def handle_max(message):
     data = user_settings.get(str(message.chat.id))
-    # Проверка на всякий, а вдруг пользователь решит ввести сообщение до ввода данных
     if not data or 'func' not in data:
         bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Введите функцию и отрезок", parse_mode='HTML')
         bot.delete_message(message.chat.id, message.message_id)
         return
 
     graph_module.func = data['func']
-    result_text = dichotomy_max(data['a'], data['b'])
-    # Смотрит сохраненный файл, если графика нет, то и изображения тоже, значит и смотреть нечего, тогда просто выводим рез. Дихотомии
-    PATH = build_graph(message.from_user.id, data['func'], data['a'], data['b'], GRAPHS_DIR)
 
-    # Лог для построения графика
+    # начинает просчет Максимума с таймером
+    result_text = run_with_timeout(
+        dichotomy_max,
+        args=(data['a'], data['b']),
+        timeout=10
+    )
+    if result_text is None:
+        timeout_error(message)
+        return
+
+    # начинает просчет Минимума с таймером
+    PATH = run_with_timeout(
+        build_graph,
+        args=(message.from_user.id, data['func'], data['a'], data['b'], GRAPHS_DIR),
+        timeout=10
+    )
+
     logger.info(f'График (максимум) | id: {message.from_user.id} | username: @{message.from_user.username} | '
                 f'f(x) = {data["func"]} | отрезок: [{data["a"]}]; [{data["b"]}] | результат: {result_text}')
 
@@ -381,10 +420,9 @@ def handle_max(message):
     else:
         bot.send_message(message.chat.id, result_text)
 
-    # Выходим на базовый функционал меню
     bot.send_message(message.chat.id, "🔎 Чем займемся теперь?", reply_markup=menu())
 
-# Все то же самое для МИНИМУМА
+
 @bot.message_handler(func=lambda m: m.text == "⬇️ Минимум")
 def handle_min(message):
     data = user_settings.get(str(message.chat.id))
@@ -394,10 +432,24 @@ def handle_min(message):
         return
 
     graph_module.func = data['func']
-    result_text = dichotomy_min(data['a'], data['b'])
-    PATH = build_graph(message.from_user.id, data['func'], data['a'], data['b'], GRAPHS_DIR)
 
-    # Лог для построения графика
+    # начинает просчет Максимума с таймером
+    result_text = run_with_timeout(
+        dichotomy_min,
+        args=(data['a'], data['b']),
+        timeout=10
+    )
+    if result_text is None:
+        timeout_error(message)
+        return
+
+    # начинает просчет Минимума с таймером
+    PATH = run_with_timeout(
+        build_graph,
+        args=(message.from_user.id, data['func'], data['a'], data['b'], GRAPHS_DIR),
+        timeout=10
+    )
+
     logger.info(f'График (минимум) | id: {message.from_user.id} | username: @{message.from_user.username} | '
                 f'f(x) = {data["func"]} | отрезок: [{data["a"]}]; [{data["b"]}] | результат: {result_text}')
 
@@ -407,7 +459,6 @@ def handle_min(message):
     else:
         bot.send_message(message.chat.id, result_text)
 
-    # Выходим на базовый функционал меню
     bot.send_message(message.chat.id, "🔎 Чем займемся теперь?", reply_markup=menu())
 
 #===ПОСТРОЕНИЕ ГРАФИКА==================================================================================================
@@ -494,10 +545,20 @@ def get_simple_b(message):
 
 def build_simple_graph(message, func, func_raw, a, b):
     graph_module.func = func
-    PATH = simple_graph(message.from_user.id, func, a, b, GRAPHS_DIR)
+
+    # построение графика по таймеру
+    PATH = run_with_timeout(
+        simple_graph,
+        args=(message.from_user.id, func, a, b, GRAPHS_DIR),
+        timeout=10
+    )
 
     logger.info(f'График | id: {message.from_user.id} | username: @{message.from_user.username} | '
                 f'f(x) = {func} | отрезок: [{a}; {b}]')
+
+    if PATH is None:
+        timeout_error(message)
+        return
 
     if PATH:
         with open(PATH, "rb") as photo:
@@ -511,6 +572,7 @@ def build_simple_graph(message, func, func_raw, a, b):
                      f'f(x) = {func_raw}')
 
     bot.send_message(message.chat.id, "🔎 Чем займемся теперь?", reply_markup=menu())
+
 
 #===ГРАФИК С ПАРАМЕТРОМ=================================================================================================
 
@@ -661,7 +723,17 @@ def build_parameter_graph_handler(message):
         bot.send_message(message.chat.id, "❌ <b>Ошибка!</b> Сначала добавьте функции", parse_mode='HTML')
         return
 
-    PATH = parameter_graph(get_color_mode(message.chat.id), message.from_user.id, functions, a, b, GRAPHS_DIR)
+    color_mode = get_color_mode(message.chat.id)
+
+    PATH = run_with_timeout(
+        parameter_graph,
+        args=(color_mode, message.from_user.id, functions, a, b, GRAPHS_DIR),
+        timeout=15
+    )
+
+    if PATH is None:
+        timeout_error(message)
+        return
 
     lines = []
     for fn in functions:

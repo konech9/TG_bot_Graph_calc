@@ -1,7 +1,8 @@
 {
     "1633373556": {
         "default_a": -10.0,
-        "default_b": 20.0
+        "default_b": 20.0,
+        "color_mode": "all_different"
     },
     "1073024503": {
         "default_a": -30.0,
