@@ -7,10 +7,10 @@ import warnings
 import numpy as np
 from src.graph.graph import parse, validate, dichotomy_max, dichotomy_min, graph as build_graph, simple_graph, parameter_graph
 import src.graph.graph as graph_module
-from logger import logger
+from src.logger import logger
 import json
 from messages.bot_syntax_info import SYNTAX_INFO
-from src.bot.actions import menu, menu_graph, menu_interval, menu_exit, parameter_menu, is_cancelled, menu_settings, menu_color_mode
+from src.utils.keyboards import menu, menu_graph, menu_interval, menu_exit, parameter_menu, is_cancelled, menu_settings, menu_color_mode
 import threading
 
 #===УСЛОВНЫЙ SETUP======================================================================================================
@@ -36,10 +36,6 @@ if not TOKEN:
     raise ValueError("BOT_TOKEN not set")
 
 bot = telebot.TeleBot(TOKEN)
-
-
-# Директория для картинок
-pictures_dir = os.path.dirname(os.path.abspath(__file__))
 
 #===ДАННЫЕ ПОЛЬЗОВАТЕЛЯ=================================================================================================
 
@@ -91,7 +87,7 @@ DEFAULT_A = -20
 DEFAULT_B = 20
 
 # Максимальная длина отрезка
-MAX_INTERVAL = 1e4
+MAX_INTERVAL = 1e5
 
 #===ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ=============================================================================================
 # ограничение по времени просчета
@@ -142,7 +138,7 @@ def get_user(chat_id):
 #===СТАРТ, ВЫКИДЫВАЕТ ПАРУ ФОТО=========================================================================================
 def send_picture_start(message):
     try:
-        photo_path = os.path.join(pictures_dir, "src", "pictures", "DICHOTOMY.png")
+        photo_path = os.path.join(BASE_DIR, "src", "pictures", "DICHOTOMY.png")
         with open(photo_path, "rb") as photo:
             bot.send_photo(message.chat.id, photo,
                            caption=f"👋 Приветствую вас, {message.from_user.first_name}, в <b>GraphBOT!</b>\n\n"
@@ -162,7 +158,7 @@ def send_picture_start(message):
 
 def send_picture_examples(message):
     try:
-        examples_dir = os.path.join(pictures_dir, "src", "pictures", "examples")
+        examples_dir = os.path.join(BASE_DIR, "src", "pictures", "examples")
         files = [f for f in os.listdir(examples_dir) if f.endswith((".png", ".jpg", ".jpeg"))]
         media = [InputMediaPhoto(open(os.path.join(examples_dir, f), "rb")) for f in files]
         media[0] = InputMediaPhoto(
@@ -757,4 +753,5 @@ def build_parameter_graph_handler(message):
 #=======================================================================================================================
 
 if __name__ == "__main__":
+    print(f'Bot initialized successfully! \nsigned by >onemoretime')
     bot.polling()
