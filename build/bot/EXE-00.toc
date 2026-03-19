@@ -73,7 +73,7 @@
  [],
  False,
  False,
- 1773416080,
+ 1773937047,
  [('run.exe',
    'C:\\Users\\pleha\\OneDrive\\Документы\\GitHub\\TG_bot_Graph_calc\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
    'EXECUTABLE')],

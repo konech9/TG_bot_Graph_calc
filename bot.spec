@@ -1,12 +1,18 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-
 a = Analysis(
     ['bot.py'],
     pathex=[],
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+    datas=[
+        ('src', 'src'),           # картинки, graph.py и всё остальное из src/
+        ('messages', 'messages'), # bot_syntax_info.py
+        ('.env', '.'),            # токен бота
+    ],
+    hiddenimports=[
+        'telebot',
+        'dotenv',
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -14,6 +20,7 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
@@ -26,13 +33,14 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,
+    console=True,   # оставляем True — бот должен работать в консоли
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
 )
+
 coll = COLLECT(
     exe,
     a.binaries,
