@@ -347,7 +347,7 @@ def parameter_graph(color_mode, i, functions, x_a, x_b, save_dir='./imgs'):
 
     global func
 
-    x = adaptive_x(x_a, x_b, 1000)
+    x = np.linspace(x_a, x_b, 1000)
 
     # фигура + оси
     fig, ax = plt.subplots()
