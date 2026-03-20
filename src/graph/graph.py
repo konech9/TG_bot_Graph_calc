@@ -100,14 +100,22 @@ def dichotomy_max(a, b):
     if a == b:
         c = None
         return f'❌ Ошибка: интервал задан двумя совпадающими точками.'
-    if np.isnan(function(a)) and np.isnan(function(b)):
-        c = None
-        return f'❌ Ошибка: функция не определена на отрезке ({a}; {b})'
 
     #===Здесь бьем область на 1000 сегментов и на каждом из них считаем минимум/максимум================================
 
     segments = 1000
     step = (b - a) / segments
+
+    for i in range(segments+1):
+        xi = a + (b - a) * i / segments
+        val = function(xi)
+        if not (np.isnan(val) or np.isinf(val)):
+            has_defined = True
+            break
+
+    if not has_defined:
+        c = None
+        return f'❌ Ошибка: функция не определена на отрезке [{a}; {b}]'
 
     best_c = None
     best_val = float('-inf')
@@ -156,9 +164,6 @@ def dichotomy_min(a, b):
     if a == b:
         c = None
         return f'❌ Ошибка: интервал задан двумя совпадающими точками.'
-    if np.isnan(function(a)) and np.isnan(function(b)):
-        c = None
-        return f'❌ Ошибка: функция не определена на отрезке ({a}; {b})'
 
     #===Здесь бьем область на 1000 сегментов и на каждом из них считаем минимум/максимум================================
 
@@ -167,6 +172,20 @@ def dichotomy_min(a, b):
 
     best_c = None
     best_val = float('inf')
+
+    # --- проверка на существование значений функции ---
+    has_defined = False
+
+    for i in range(segments+1):
+        xi = a + (b - a) * i / segments
+        val = function(xi)
+        if not (np.isnan(val) or np.isinf(val)):
+            has_defined = True
+            break
+
+    if not has_defined:
+        c = None
+        return f'❌ Ошибка: функция не определена на отрезке [{a}; {b}]'
 
     for i in range(segments):
         seg_a = a + i * step
@@ -235,12 +254,33 @@ def compute_y(x_arr):
     # конвертация в массив нампая, где все элементы - дробные числа
     return np.array(y, dtype=float)
 
+# --- адаптивный подбор x для точности графика ---
+def adaptive_x(a, b, line = 1000):
+    x = np.linspace(a, b, line)
+    y = compute_y(x)
+
+    new_x = [x[0]]
+
+    for i in range(1, len(x) - 1):
+        dy1 = abs(y[i] - y[i-1])
+        dy2 = abs(y[i+1] - y[i])
+
+        # если резкий скачок — добавляем больше точек
+        if dy1 > 1 or dy2 > 1:
+            extra = np.linspace(x[i-1], x[i+1], 5)
+            new_x.extend(extra)
+        else:
+            new_x.append(x[i])
+
+    new_x.append(x[-1])
+    return np.unique(new_x)
+
 # i - то, с чем будет сохраняться файл, с каким префиксом, нужно по айди пользователя или по его тегу
 def graph(i, func, a, b, save_dir='./imgs'):
     if c is None:
         return None
 
-    x = np.linspace(a, b, 1000)
+    x = adaptive_x(a, b, 1500)
     y = compute_y(x)
     y = apply_iqr_clip(y)
 
@@ -278,7 +318,8 @@ def apply_iqr_clip(y):
 
 # простой график, построение без макс/мин
 def simple_graph(i, func, a, b, save_dir='./imgs'):
-    x = np.linspace(a, b, 1000)
+
+    x = adaptive_x(a, b, 1000)
     y = compute_y(x)
     y = apply_iqr_clip(y)
 
@@ -306,7 +347,7 @@ def parameter_graph(color_mode, i, functions, x_a, x_b, save_dir='./imgs'):
 
     global func
 
-    x = np.linspace(x_a, x_b, 1000)
+    x = adaptive_x(x_a, x_b, 1000)
 
     # фигура + оси
     fig, ax = plt.subplots()

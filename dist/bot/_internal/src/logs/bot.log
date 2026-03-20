@@ -35,3 +35,17 @@ telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsucc
 2026-03-14 23:31:49,313 [INFO] График (максимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = x**a | отрезок: [-10.0]; [20.0] | результат: ❌ Ошибка: функция не определена на отрезке (-10.0; 20.0)
 2026-03-17 21:27:22,466 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a', 'a+7-x^log(x)'] | отрезок: [-10.0; 20.0]
 2026-03-19 18:57:39,974 [INFO] График (максимум) | id: 1633373556 | username: @Cnstrct13 | f(x) = x**2 | отрезок: [-10.0]; [20.0] | результат: f(x_max) = 400.0, x_max = 20.0
+2026-03-20 18:10:55,601 [INFO] Параметрический график | id: 1633373556 | username: @Cnstrct13 | функции: ['x^a', 'x+a'] | отрезок: [-20; 20]
+2026-03-20 18:17:42,867 [ERROR] Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-03-20 18:17:42,868 [ERROR] Exception traceback:
+Traceback (most recent call last):
+  File "telebot\__init__.py", line 1234, in __threaded_polling
+  File "telebot\util.py", line 115, in raise_exceptions
+  File "telebot\util.py", line 97, in run
+  File "telebot\__init__.py", line 688, in __retrieve_updates
+  File "telebot\__init__.py", line 660, in get_updates
+  File "telebot\apihelper.py", line 339, in get_updates
+  File "telebot\apihelper.py", line 168, in _make_request
+  File "telebot\apihelper.py", line 197, in _check_result
+telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+
